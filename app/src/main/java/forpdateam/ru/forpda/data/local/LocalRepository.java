@@ -53,7 +53,7 @@ public class LocalRepository implements ILocalRepository {
 
     @Override
     public void saveNewsToRealm(NewsModel model) {
-        log(TAG + " saveNewsToRealm -> " + model.getTitle());
+        log(TAG + " saveNewsToRealm -> " + model.title);
         realm.executeTransaction(r -> r.insertOrUpdate(model));
     }
 

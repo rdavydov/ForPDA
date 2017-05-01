@@ -100,7 +100,7 @@ public class Repository implements IRepository {
         List<NewsModel> cache = new ArrayList<>();
         List<NewsModel> cache2 = localRepository.getLocalNewsList2(category);
         Stream.of(list).filterNot(newModel -> Stream.of(cache2)
-                        .anyMatch(oldModel -> newModel.getLink().equals(oldModel.getLink())))
+                        .anyMatch(oldModel -> newModel.link.equals(oldModel.link)))
                 .forEach(cache::add);
         return cache;
     }

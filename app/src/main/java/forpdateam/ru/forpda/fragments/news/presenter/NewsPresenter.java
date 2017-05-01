@@ -85,6 +85,12 @@ public class NewsPresenter implements INewsPresenter {
                 }));
     }
 
+    @Override
+    public void reInstance(@NonNull String category, int size) {
+        if (size > 0) { updateData(category, true); }
+        else { loadData(category); }
+    }
+
     /**
      *
      * @param category

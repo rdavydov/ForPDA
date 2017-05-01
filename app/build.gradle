@@ -48,6 +48,15 @@ android {
             versionCode versionNumber
             versionName "${versionMajor}.${versionMinor}.${versionPatch} (${versionBuild})beta"
         }
+        isanechek {
+            applicationId 'ru.forpdateam.forpda.isanechek'
+            versionCode versionNumber
+            versionName "${versionMajor}.${versionMinor}.${versionPatch} (${versionBuild})isanechek"
+            minSdkVersion 17
+            ndk {
+                abiFilters 'armeabi-v7a'
+            }
+        }
     }
 
     applicationVariants.all { variant ->
@@ -93,10 +102,11 @@ android {
 
 ext {
     supportLibVersion = '25.3.1'
-    okHttpVersion = '3.5.0'
+    okHttpVersion = '3.6.0'
     rxbindingVersion = '0.4.0'
     rxlifecycleVersion = '2.0.1'
-    rxCoreVersion = '2.0.1'
+    rxCoreVersion = '2.1.0'
+    rxAndroidVersion = '2.0.1'
 }
 
 dependencies {
@@ -110,22 +120,32 @@ dependencies {
     compile "com.squareup.okhttp3:okhttp:${okHttpVersion}"
     compile "com.squareup.okhttp3:okhttp-urlconnection:${okHttpVersion}"
     compile 'com.annimon:stream:1.1.4'
-    compile "io.reactivex.rxjava2:rxandroid:${rxCoreVersion}"
+    compile "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}"
     compile "io.reactivex.rxjava2:rxjava:${rxCoreVersion}"
-    compile 'com.github.fcannizzaro:fast-event:0.1.4'
     compile 'com.jakewharton.rxrelay2:rxrelay:2.0.0'
     compile "com.trello.rxlifecycle2:rxlifecycle:${rxlifecycleVersion}"
     compile "com.trello.rxlifecycle2:rxlifecycle-components:${rxlifecycleVersion}"
     compile "com.trello.rxlifecycle2:rxlifecycle-android:${rxlifecycleVersion}"
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
-    compile 'org.jsoup:jsoup:1.10.1'
+    compile 'org.jsoup:jsoup:1.10.2'
     compile 'com.github.rahatarmanahmed:circularprogressview:2.5.0'
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.nineoldandroids:library:2.4.0'
+    compile 'com.github.linger1216:labelview:v1.1.2'
+    compile 'me.gujun.android.taggroup:library:1.4@aar'
+    compile 'br.com.simplepass:loading-button-android:1.6.5'
     compile group: 'org.ccil.cowan.tagsoup', name: 'tagsoup', version: '1.2'
     compile 'org.bsc.util:minitemplator-repackaged:1.2'
     compile 'com.lapism:searchview:4.0'
     compile 'com.github.bmelnychuk:atv:1.2.9'
     compile 'com.afollestad:sectioned-recyclerview:0.2.3'
     compile 'ch.acra:acra:4.9.0'
+
+    // For Debuga
+    debugCompile 'com.readystatesoftware.chuck:library:1.0.4'
+    releaseCompile 'com.readystatesoftware.chuck:library-no-op:1.0.4'
+    compile 'com.orhanobut:logger:1.15'
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.1'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
+    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
 }

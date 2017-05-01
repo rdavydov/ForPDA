@@ -1,5 +1,6 @@
 package forpdateam.ru.forpda.fragments.news;
 
+import android.graphics.Color;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -8,9 +9,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.annimon.stream.Stream;
+import com.annimon.stream.function.Consumer;
+import com.annimon.stream.function.Function;
+import com.lid.lib.LabelImageView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
@@ -18,6 +24,8 @@ import java.util.List;
 
 import forpdateam.ru.forpda.R;
 import forpdateam.ru.forpda.fragments.news.models.NewsModel;
+import forpdateam.ru.forpda.fragments.news.models.TagModel;
+import me.gujun.android.taggroup.TagGroup;
 
 import static forpdateam.ru.forpda.utils.Utils.log;
 
@@ -32,12 +40,11 @@ public class NewsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public static final int LOADING = 1;
     private static final int VISIBLE_THRESHOLD = 5;
     private List<NewsModel> list;
-    private boolean mIsLoading;
-    private OnLoadMoreCallback mOnLoadMoreListener;
     private OnItemClickListener mOnItemClickListener;
     private OnItemLongClickListener mOnItemLongClickListener;
     private OnReloadDataListener mOnReloadDataListener;
     private boolean mIsLoadingFooterAdded = false;
+    private ArrayList<NewsModel> mNewsList = new ArrayList<>();
 
     public interface OnItemClickListener {
         void onItemClick(int position, View view);
@@ -57,27 +64,6 @@ public class NewsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public NewsListAdapter() {
         this.list = new ArrayList<>();
-    }
-
-    void bindRecyclerView(RecyclerView recyclerView) {
-        if (recyclerView.getLayoutManager() instanceof LinearLayoutManager) {
-            final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                    super.onScrolled(recyclerView, dx, dy);
-
-                    int totalItemCount = layoutManager.getItemCount();
-                    int lastVisibleItem = layoutManager.findLastVisibleItemPosition();
-                    if (!mIsLoading && totalItemCount <= (lastVisibleItem + VISIBLE_THRESHOLD)) {
-                        if (mOnLoadMoreListener != null) {
-                            mOnLoadMoreListener.onLoadMore();
-                        }
-                        mIsLoading = true;
-                    }
-                }
-            });
-        }
     }
 
     @Override
@@ -128,9 +114,9 @@ public class NewsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private void add(NewsModel newsModel, boolean more) {
         list.add(newsModel);
-        int size = list.size();
-        notifyItemRangeChanged(more ? size+1 : size-1, 1);
-        notifyDataSetChanged();
+//        int size = list.size();
+//        notifyItemRangeChanged(more ? size+1 : size-1, 1);
+//        notifyDataSetChanged();
     }
 
     public void addAll(List<NewsModel> results, boolean more) {
@@ -171,10 +157,6 @@ public class NewsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     }
 
-    public void removeMoreLoadingAndAddNewItems(List<NewsModel> list) {
-
-    }
-
     public void removeMoreLoadingProgress() {
         mIsLoadingFooterAdded = false;
 
@@ -195,10 +177,6 @@ public class NewsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.mOnItemLongClickListener = onItemLongClickListener;
     }
 
-    public void setOnLoadMoreListener(OnLoadMoreCallback onLoadMoreListener) {
-        this.mOnLoadMoreListener = onLoadMoreListener;
-    }
-
     public void setOnReloadDataListener(OnReloadDataListener onReloadDataListener) {
         this.mOnReloadDataListener = onReloadDataListener;
     }
@@ -208,7 +186,7 @@ public class NewsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     // --------------------------------------------------------------------------------------
 
     private RecyclerView.ViewHolder createNewsViewHolder(ViewGroup parent) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.news_list_item, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.news_list_item2, parent, false);
         final NewsViewHolder holder = new NewsViewHolder(v);
         holder.card.setOnClickListener(v1 -> {
             int adapterPos = holder.getAdapterPosition();
@@ -227,28 +205,46 @@ public class NewsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private void bindNewsViewHolder(RecyclerView.ViewHolder viewHolder, int position){
         NewsViewHolder holder = (NewsViewHolder) viewHolder;
         final NewsModel newsModel = list.get(position);
-        holder.title.setText(newsModel.getTitle());
-        holder.description.setText(newsModel.getDescription());
-        holder.date.setText(newsModel.getDate());
-
-        ImageLoader.getInstance().displayImage(newsModel.getImgLink(), holder.pic);
+        holder.title.setText(newsModel.title);
+        holder.description.setText(newsModel.description);
+        holder.date.setText(newsModel.date);
+        holder.author.setText(newsModel.author);
+        holder.commentsCount.setText(newsModel.commentsCount);
+        holder.pic.setLabelVisual(true);
+        holder.pic.setLabelTextColor(Color.parseColor("#212121"));
+        List<String> tags = new ArrayList<>();
+        tags.add("huinya");
+        tags.add("zopa");
+        tags.add("v hui");
+//        Stream.of(newsModel.tagList)
+//                .map(tagModel -> tagModel.title)
+//                .forEach(tags::add);
+        holder.mTagGroup.setTags(tags);
+        ImageLoader.getInstance().displayImage(newsModel.imgLink, holder.pic);
     }
 
     private static class NewsViewHolder extends RecyclerView.ViewHolder {
 
-        CardView card;
-        ImageView pic;
+        LinearLayout card;
+//        ImageView pic;
+        LabelImageView pic;
         TextView title;
         TextView date;
         TextView description;
+        TextView author;
+        TextView commentsCount;
+        TagGroup mTagGroup;
         
         public NewsViewHolder(View view) {
             super(view);
-            card = (CardView) view.findViewById(R.id.news_list_item_root_card);
-            pic = (ImageView) view.findViewById(R.id.news_list_item_pic);
+            card = (LinearLayout) view.findViewById(R.id.news_list_item_root_card);
+            pic = (LabelImageView) view.findViewById(R.id.news_list_item_pic);
             title = (TextView) view.findViewById(R.id.news_list_item_title_tv);
             date = (TextView) view.findViewById(R.id.news_list_item_date_tv);
             description = (TextView) view.findViewById(R.id.news_list_item_description_tv);
+            author = (TextView) view.findViewById(R.id.news_list_item_author_tv);
+            commentsCount = (TextView) view.findViewById(R.id.news_list_item_comments_tv);
+            mTagGroup = (TagGroup) view.findViewById(R.id.news_list_item_tag_group);
         }
     }
 
@@ -280,6 +276,32 @@ public class NewsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             error_face_iv = (ImageView) item.findViewById(R.id.error_iv);
             error_tv = (TextView) item.findViewById(R.id.error_tv);
             progressBar = (ProgressBar) item.findViewById(R.id.progressBar);
+        }
+    }
+
+    /*======================================TOP VIEW=============================================*/
+
+
+    private RecyclerView.ViewHolder createTopViewHolder(ViewGroup parent) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.news_list_item_top, parent, false);
+        return new TopViewHolder(v);
+    }
+
+    private void bindTopHolder(RecyclerView.ViewHolder viewHolder) {
+        TopViewHolder holder = (TopViewHolder) viewHolder;
+//        Stream.of(list).
+//        holder.topTitle
+    }
+
+    private static class TopViewHolder extends RecyclerView.ViewHolder {
+
+        ImageView topImage;
+        TextView topTitle;
+
+        public TopViewHolder(View itemView) {
+            super(itemView);
+            topImage = (ImageView) itemView.findViewById(R.id.news_list_top_item_iv);
+            topTitle = (TextView) itemView.findViewById(R.id.news_list_top_item_title_tv);
         }
     }
 }

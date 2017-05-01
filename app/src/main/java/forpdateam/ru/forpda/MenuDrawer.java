@@ -28,6 +28,7 @@ import forpdateam.ru.forpda.fragments.auth.AuthFragment;
 import forpdateam.ru.forpda.fragments.favorites.FavoritesFragment;
 import forpdateam.ru.forpda.fragments.forum.ForumFragment;
 import forpdateam.ru.forpda.fragments.mentions.MentionsFragment;
+import forpdateam.ru.forpda.fragments.news.NewsListFragment;
 import forpdateam.ru.forpda.fragments.profile.ProfileFragment;
 import forpdateam.ru.forpda.fragments.qms.QmsContactsFragment;
 import forpdateam.ru.forpda.fragments.search.SearchFragment;
@@ -47,7 +48,7 @@ public class MenuDrawer {
         initMenuItems();
         adapter.notifyDataSetChanged();
         if ((boolean) o && TabManager.getInstance().getSize() <= 1) {
-            //select(findByClassName(NewsListFragment.class.getSimpleName()));
+            select(findByClassName(NewsListFragment.class.getSimpleName()));
             select(findByClassName(FavoritesFragment.class.getSimpleName()));
         }
         if (!(boolean) o) {
@@ -152,7 +153,7 @@ public class MenuDrawer {
     private void initMenuItems() {
         if (createdMenuItems.size() == 0) {
             createdMenuItems.add(new MenuItem<>("Авторизация", R.drawable.ic_person_add_gray_24dp, AuthFragment.class));
-            //createdMenuItems.add(new MenuItem<>("Новости", R.drawable.ic_newspaper_gray, NewsListFragment.class));
+            createdMenuItems.add(new MenuItem<>("Новости", R.drawable.ic_newspaper_gray, NewsListFragment.class));
             createdMenuItems.add(new MenuItem<>("Избранное", R.drawable.ic_star_black_24dp, FavoritesFragment.class));
             createdMenuItems.add(new MenuItem<>("Контакты", R.drawable.ic_contacts_gray_24dp, QmsContactsFragment.class));
             createdMenuItems.add(new MenuItem<>("Ответы", R.drawable.ic_notifications_gray_24dp, MentionsFragment.class));

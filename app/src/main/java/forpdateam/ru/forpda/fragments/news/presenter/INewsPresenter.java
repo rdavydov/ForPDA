@@ -16,6 +16,7 @@ public interface INewsPresenter {
 
     void loadData(String category);
     void updateData(@NonNull String category, boolean background);
+    void reInstance(@NonNull String category, int size);
     void loadMoreNewItems(@NonNull String category, int pageNumber, String lastUrl);
     void loadMore(@NonNull String category, int pageNumber);
 }

@@ -16,14 +16,14 @@ public class RealmMapping {
 
     public static NewsModel mappingNews(NewsNetworkModel item) {
         NewsModel newsModel = new NewsModel();
-        newsModel.setLink(item.getLink());
-        newsModel.setImgLink(item.getImageUrl());
-        newsModel.setAuthor(item.getAuthor());
-        newsModel.setCommentsCount(item.getCommentsCount());
-        newsModel.setDate(item.getDate());
-        newsModel.setDescription(item.getDescription());
-        newsModel.setTitle(item.getTitle());
-        newsModel.setCategory(item.getCategory());
+        newsModel.link = item.getLink();
+        newsModel.imgLink = item.getImageUrl();
+        newsModel.author = item.getAuthor();
+        newsModel.commentsCount = item.getCommentsCount();
+        newsModel.date = item.getDate();
+        newsModel.description = item.getDescription();
+        newsModel.title = item.getTitle();
+        newsModel.category = item.getCategory();
         return newsModel;
     }
 
