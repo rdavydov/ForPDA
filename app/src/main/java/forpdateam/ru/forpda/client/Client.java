@@ -8,6 +8,8 @@ import android.os.Looper;
 import android.util.Log;
 import android.webkit.WebSettings;
 
+import com.readystatesoftware.chuck.ChuckInterceptor;
+
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +34,7 @@ import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 
 public class Client implements IWebClient {
     private final static String userAgent = WebSettings.getDefaultUserAgent(App.getContext());
@@ -90,6 +93,8 @@ public class Client implements IWebClient {
     }
 
     private final OkHttpClient client = new OkHttpClient.Builder()
+            .addInterceptor(new ChuckInterceptor(App.getContext()))
+            .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
             .connectTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)

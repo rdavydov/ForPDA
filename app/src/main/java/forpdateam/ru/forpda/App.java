@@ -19,6 +19,8 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
+import com.squareup.leakcanary.LeakCanary;
+import com.squareup.leakcanary.RefWatcher;
 
 import org.acra.ACRA;
 import org.acra.ReportingInteractionMode;
@@ -129,11 +131,18 @@ public class App extends android.app.Application {
         return template;
     }
 
+    private RefWatcher refWatcher;
+
+    public static RefWatcher getRefWatcher(Context context) {
+        App app = (App) context.getApplicationContext();
+        return app.refWatcher;
+    }
 
     @Override
     public void onCreate() {
         super.onCreate();
         ACRA.init(this);
+        refWatcher = LeakCanary.install(this);
 
         templates.put(TEMPLATE_THEME, findTemplate(TEMPLATE_THEME));
         templates.put(TEMPLATE_SEARCH, findTemplate(TEMPLATE_SEARCH));

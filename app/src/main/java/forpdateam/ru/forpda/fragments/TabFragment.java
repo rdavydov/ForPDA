@@ -22,6 +22,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.leakcanary.RefWatcher;
 import com.trello.rxlifecycle2.components.support.RxFragment;
 
 import java.net.URLEncoder;
@@ -333,6 +334,8 @@ public class TabFragment extends RxFragment {
         super.onDestroy();
         hidePopupWindows();
         ClientHelper.getInstance().removeCountsObserver(countsObserver);
+        RefWatcher watcher = App.getRefWatcher(getActivity());
+        watcher.watch(this);
     }
 
 
