@@ -13,10 +13,10 @@ import android.view.ViewGroup;
 import forpdateam.ru.forpda.R;
 import forpdateam.ru.forpda.api.mentions.models.MentionsData;
 import forpdateam.ru.forpda.fragments.TabFragment;
-import forpdateam.ru.forpda.pagination.PaginationHelper;
 import forpdateam.ru.forpda.rxapi.RxApi;
 import forpdateam.ru.forpda.utils.IntentHandler;
 import forpdateam.ru.forpda.utils.rx.Subscriber;
+import forpdateam.ru.forpda.views.pagination.PaginationHelper;
 
 /**
  * Created by radiationx on 21.01.17.
@@ -55,7 +55,6 @@ public class MentionsFragment extends TabFragment {
         recyclerView = (RecyclerView) findViewById(R.id.base_list);
         viewsReady();
         refreshLayout.setOnRefreshListener(this::loadData);
-        recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         paginationHelper.inflatePagination(getContext(), inflater, toolbar);
@@ -88,9 +87,11 @@ public class MentionsFragment extends TabFragment {
 
     private void onLoadThemes(MentionsData data) {
         refreshLayout.setRefreshing(false);
+        recyclerView.scrollToPosition(0);
         this.data = data;
         adapter.addAll(data.getItems());
         paginationHelper.updatePagination(data.getPagination());
         setSubtitle(paginationHelper.getString());
+
     }
 }

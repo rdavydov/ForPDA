@@ -1,6 +1,5 @@
 package forpdateam.ru.forpda.fragments;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
@@ -25,18 +24,15 @@ import android.widget.Toast;
 import com.squareup.leakcanary.RefWatcher;
 import com.trello.rxlifecycle2.components.support.RxFragment;
 
-import java.net.URLEncoder;
 import java.util.Observer;
 
 import forpdateam.ru.forpda.App;
-import forpdateam.ru.forpda.FontExampleActivity;
 import forpdateam.ru.forpda.MainActivity;
 import forpdateam.ru.forpda.R;
 import forpdateam.ru.forpda.TabManager;
 import forpdateam.ru.forpda.client.Client;
 import forpdateam.ru.forpda.client.ClientHelper;
 import forpdateam.ru.forpda.rxapi.RxApi;
-import forpdateam.ru.forpda.settings.SettingsActivity;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -221,29 +217,6 @@ public class TabFragment extends RxFragment {
     }
 
     protected void addBaseToolbarMenu() {
-        toolbar.getMenu().add("Test cyrillic").setOnMenuItemClickListener(menuItem -> {
-            String suka = "Т[spoiler]тест запросов с кириллицей и спецсимволов\n" +
-                    "Test request\n" +
-                    "[Ggggg]\n" +
-                    "\" : ; ' + = - < > \\ & % $ # @ !\n" +
-                    "А вот после редактирования)[attachment=\"10185864:тест кириллицы.jpg\"][/spoiler]";
-            Log.e("SUKA", suka);
-            try {
-                Log.e("SUKA", URLEncoder.encode(suka, "UTF-8"));
-                Log.e("SUKA", URLEncoder.encode(suka, "CP1251"));
-            } catch (Exception ignore) {
-            }
-
-            return false;
-        });
-        toolbar.getMenu().add("Fonts tester").setOnMenuItemClickListener(menuItem -> {
-            getMainActivity().startActivity(new Intent(getContext(), FontExampleActivity.class));
-            return false;
-        });
-        toolbar.getMenu().add("Settings").setOnMenuItemClickListener(menuItem -> {
-            getMainActivity().startActivity(new Intent(getContext(), SettingsActivity.class));
-            return false;
-        });
         toolbar.getMenu().add("Logout").setOnMenuItemClickListener(menuItem -> {
             new AlertDialog.Builder(getContext())
                     .setMessage("Вы уверены, что хотите выйти из аккаунта?")

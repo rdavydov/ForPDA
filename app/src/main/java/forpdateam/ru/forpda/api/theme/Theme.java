@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import forpdateam.ru.forpda.api.Api;
+import forpdateam.ru.forpda.api.Utils;
 import forpdateam.ru.forpda.api.others.pagination.Pagination;
 import forpdateam.ru.forpda.api.theme.models.Poll;
 import forpdateam.ru.forpda.api.theme.models.PollQuestion;
@@ -15,7 +16,6 @@ import forpdateam.ru.forpda.api.theme.models.PollQuestionItem;
 import forpdateam.ru.forpda.api.theme.models.ThemePage;
 import forpdateam.ru.forpda.api.theme.models.ThemePost;
 import forpdateam.ru.forpda.client.ClientHelper;
-import forpdateam.ru.forpda.api.Utils;
 import okhttp3.MultipartBody;
 
 /**
@@ -180,7 +180,7 @@ public class Theme {
         }
         MultipartBody multipartBody = multipartBuilder.build();
         for (MultipartBody.Part part : multipartBody.parts()) {
-            Log.e("SUKA", part.headers().toString() + " : " + part.body().contentType());
+            Log.e("FORPDA_LOG", part.headers().toString() + " : " + part.body().contentType());
         }
 
 
@@ -198,9 +198,7 @@ public class Theme {
 
     public String deletePost(int postId) throws Exception {
         String url = "http://4pda.ru/forum/index.php?act=zmod&auth_key=".concat(Api.getWebClient().getAuthKey()).concat("&code=postchoice&tact=delete&selectedpids=").concat(Integer.toString(postId));
-        HashMap<String, String> headers = new HashMap<>();
-        headers.put("X-Requested-With", "XMLHttpRequest");
-        String response = Api.getWebClient().get(url, headers);
+        String response = Api.getWebClient().getXhr(url);
         return response.equals("ok") ? response : "";
     }
 

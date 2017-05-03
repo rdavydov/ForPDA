@@ -27,11 +27,11 @@ import forpdateam.ru.forpda.api.reputation.models.RepData;
 import forpdateam.ru.forpda.api.reputation.models.RepItem;
 import forpdateam.ru.forpda.client.ClientHelper;
 import forpdateam.ru.forpda.fragments.TabFragment;
-import forpdateam.ru.forpda.pagination.PaginationHelper;
 import forpdateam.ru.forpda.rxapi.RxApi;
 import forpdateam.ru.forpda.utils.AlertDialogMenu;
 import forpdateam.ru.forpda.utils.IntentHandler;
 import forpdateam.ru.forpda.utils.rx.Subscriber;
+import forpdateam.ru.forpda.views.pagination.PaginationHelper;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -52,7 +52,7 @@ public class ReputationFragment extends TabFragment {
     private AlertDialogMenu<ReputationFragment, RepItem> showedRepDialogMenu;
 
 
-    public ReputationFragment(){
+    public ReputationFragment() {
         configuration.setDefaultTitle("Репутация");
     }
 
@@ -107,7 +107,7 @@ public class ReputationFragment extends TabFragment {
         return view;
     }
 
-    private void someClick(RepItem item){
+    private void someClick(RepItem item) {
         if (repDialogMenu == null) {
             repDialogMenu = new AlertDialogMenu<>();
             repDialogMenu.addItem("Профиль", (context, data1) -> {
@@ -205,6 +205,7 @@ public class ReputationFragment extends TabFragment {
 
     private void onLoadThemes(RepData data) {
         refreshLayout.setRefreshing(false);
+        recyclerView.scrollToPosition(0);
         this.data = data;
 
 

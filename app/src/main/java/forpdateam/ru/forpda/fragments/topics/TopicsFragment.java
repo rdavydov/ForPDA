@@ -19,12 +19,12 @@ import forpdateam.ru.forpda.api.topcis.models.TopicItem;
 import forpdateam.ru.forpda.api.topcis.models.TopicsData;
 import forpdateam.ru.forpda.fragments.TabFragment;
 import forpdateam.ru.forpda.fragments.favorites.FavoritesHelper;
-import forpdateam.ru.forpda.pagination.PaginationHelper;
 import forpdateam.ru.forpda.rxapi.RxApi;
 import forpdateam.ru.forpda.utils.AlertDialogMenu;
 import forpdateam.ru.forpda.utils.IntentHandler;
 import forpdateam.ru.forpda.utils.Utils;
 import forpdateam.ru.forpda.utils.rx.Subscriber;
+import forpdateam.ru.forpda.views.pagination.PaginationHelper;
 
 /**
  * Created by radiationx on 01.03.17.
@@ -125,6 +125,7 @@ public class TopicsFragment extends TabFragment {
 
     private void onLoadThemes(TopicsData data) {
         refreshLayout.setRefreshing(false);
+        recyclerView.scrollToPosition(0);
         this.data = data;
 
         setTitle(data.getTitle());

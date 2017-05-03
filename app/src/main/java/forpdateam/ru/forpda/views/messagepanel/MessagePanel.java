@@ -1,4 +1,4 @@
-package forpdateam.ru.forpda.messagepanel;
+package forpdateam.ru.forpda.views.messagepanel;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -19,9 +19,9 @@ import java.util.List;
 import forpdateam.ru.forpda.App;
 import forpdateam.ru.forpda.R;
 import forpdateam.ru.forpda.api.theme.editpost.models.AttachmentItem;
-import forpdateam.ru.forpda.messagepanel.advanced.AdvancedPopup;
-import forpdateam.ru.forpda.messagepanel.attachments.AttachmentsPopup;
 import forpdateam.ru.forpda.utils.SimpleTextWatcher;
+import forpdateam.ru.forpda.views.messagepanel.advanced.AdvancedPopup;
+import forpdateam.ru.forpda.views.messagepanel.attachments.AttachmentsPopup;
 
 /**
  * Created by radiationx on 07.01.17.

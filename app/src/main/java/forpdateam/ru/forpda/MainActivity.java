@@ -2,7 +2,6 @@ package forpdateam.ru.forpda;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.DrawerLayout;
@@ -23,15 +22,16 @@ import forpdateam.ru.forpda.fragments.TabFragment;
 import forpdateam.ru.forpda.utils.ExtendedWebView;
 import forpdateam.ru.forpda.utils.IntentHandler;
 import forpdateam.ru.forpda.utils.permission.RxPermissions;
+import forpdateam.ru.forpda.views.drawers.DrawerHeader;
+import forpdateam.ru.forpda.views.drawers.Drawers;
 
 public class MainActivity extends AppCompatActivity implements TabManager.TabListener {
     public final static String DEF_TITLE = "ForPDA";
     private Queue<ExtendedWebView> webViews = new LinkedList<>();
     private Timer webViewCleaner = new Timer();
-    private TabDrawer tabDrawer;
-    private MenuDrawer menuDrawer;
+    private Drawers drawers;
     private DrawerHeader drawerHeader;
-    private final View.OnClickListener toggleListener = view -> menuDrawer.toggleState();
+    private final View.OnClickListener toggleListener = view -> drawers.toggleMenu();
     private final View.OnClickListener removeTabListener = view -> backHandler(true);
 
 
@@ -59,11 +59,9 @@ public class MainActivity extends AppCompatActivity implements TabManager.TabLis
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
-        tabDrawer = new TabDrawer(this, drawerLayout);
-        menuDrawer = new MenuDrawer(this, drawerLayout, savedInstanceState);
+        drawers = new Drawers(this, drawerLayout);
+        drawers.init(savedInstanceState);
         drawerHeader = new DrawerHeader(this, drawerLayout);
-        TabManager.getInstance().loadState(savedInstanceState);
-        TabManager.getInstance().updateFragmentList();
         drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
@@ -93,23 +91,22 @@ public class MainActivity extends AppCompatActivity implements TabManager.TabLis
             App.setStatusBarHeight(((View) viewDiff.getParent()).getHeight() - viewDiff.getHeight());
             App.setNavigationBarHeight(viewDiff.getRootView().getHeight() - viewDiff.getHeight() - App.getStatusBarHeight());
             Log.e("FORPDA_LOG", "SB: " + App.getStatusBarHeight() + ", NB: " + App.getNavigationBarHeight());
-            menuDrawer.setStatusBarHeight(App.getStatusBarHeight());
-            tabDrawer.setStatusBarHeight(App.getStatusBarHeight());
+            drawers.setStatusBarHeight(App.getStatusBarHeight());
             //IntentHandler.handle("http://4pda.ru/forum/index.php?showuser=2556269");
         });
 
-        Log.e("SUKA", "ON CREATE INTENT");
+        Log.e("FORPDA_LOG", "ON CREATE INTENT");
         checkIntent(getIntent());
     }
 
-    public MenuDrawer getMenuDrawer() {
-        return menuDrawer;
+    public Drawers getDrawers() {
+        return drawers;
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        Log.e("SUKA", "ON NEW INTENT");
+        Log.e("FORPDA_LOG", "ON NEW INTENT");
         checkIntent(intent);
 
         Log.d("FORPDA_LOG", "onnewintent " + intent.toString());
@@ -120,32 +117,32 @@ public class MainActivity extends AppCompatActivity implements TabManager.TabLis
 
         new Handler().post(() -> {
             Intent newIntent = intent;
-            /*if (intent.getAction().equals("SUKA.SOSI.HUI")) {
+            /*if (intent.getAction().equals("FORPDA_LOG.SOSI.HUI")) {
                 newIntent = new Intent();
                 newIntent.setAction(Intent.ACTION_MAIN);
                 newIntent.addCategory(Intent.CATEGORY_HOME);
                 newIntent.setData(intent.getData());
-                Log.e("SUKA", "INTENT SUKA " + newIntent);
+                Log.e("FORPDA_LOG", "INTENT FORPDA_LOG " + newIntent);
             } else {
                 newIntent = intent;
             }*/
-            /*Log.e("SUKA", "FLAG_ACTIVITY_NO_HISTORY " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_NO_HISTORY));
-            Log.e("SUKA", "FLAG_ACTIVITY_SINGLE_TOP " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_SINGLE_TOP));
-            Log.e("SUKA", "FLAG_ACTIVITY_NEW_TASK " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK));
-            Log.e("SUKA", "FLAG_ACTIVITY_MULTIPLE_TASK " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_MULTIPLE_TASK));
-            Log.e("SUKA", "FLAG_ACTIVITY_CLEAR_TOP " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_CLEAR_TOP));
-            Log.e("SUKA", "FLAG_ACTIVITY_FORWARD_RESULT " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_FORWARD_RESULT));
-            Log.e("SUKA", "FLAG_ACTIVITY_PREVIOUS_IS_TOP " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP));
-            Log.e("SUKA", "FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS));
-            Log.e("SUKA", "FLAG_ACTIVITY_BROUGHT_TO_FRONT " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT));
-            Log.e("SUKA", "FLAG_ACTIVITY_RESET_TASK_IF_NEEDED " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED));
-            Log.e("SUKA", "FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY));
-            Log.e("SUKA", "FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET));
-            Log.e("SUKA", "FLAG_ACTIVITY_NO_USER_ACTION " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_NO_USER_ACTION));
-            Log.e("SUKA", "FLAG_ACTIVITY_REORDER_TO_FRONT " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
-            Log.e("SUKA", "FLAG_ACTIVITY_NO_ANIMATION " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_NO_ANIMATION));
-            Log.e("SUKA", "FLAG_ACTIVITY_CLEAR_TASK " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_CLEAR_TASK));
-            Log.e("SUKA", "FLAG_ACTIVITY_TASK_ON_HOME " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_TASK_ON_HOME));*/
+            /*Log.e("FORPDA_LOG", "FLAG_ACTIVITY_NO_HISTORY " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_NO_HISTORY));
+            Log.e("FORPDA_LOG", "FLAG_ACTIVITY_SINGLE_TOP " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_SINGLE_TOP));
+            Log.e("FORPDA_LOG", "FLAG_ACTIVITY_NEW_TASK " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK));
+            Log.e("FORPDA_LOG", "FLAG_ACTIVITY_MULTIPLE_TASK " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_MULTIPLE_TASK));
+            Log.e("FORPDA_LOG", "FLAG_ACTIVITY_CLEAR_TOP " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            Log.e("FORPDA_LOG", "FLAG_ACTIVITY_FORWARD_RESULT " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_FORWARD_RESULT));
+            Log.e("FORPDA_LOG", "FLAG_ACTIVITY_PREVIOUS_IS_TOP " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP));
+            Log.e("FORPDA_LOG", "FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS));
+            Log.e("FORPDA_LOG", "FLAG_ACTIVITY_BROUGHT_TO_FRONT " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT));
+            Log.e("FORPDA_LOG", "FLAG_ACTIVITY_RESET_TASK_IF_NEEDED " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED));
+            Log.e("FORPDA_LOG", "FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY));
+            Log.e("FORPDA_LOG", "FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET));
+            Log.e("FORPDA_LOG", "FLAG_ACTIVITY_NO_USER_ACTION " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_NO_USER_ACTION));
+            Log.e("FORPDA_LOG", "FLAG_ACTIVITY_REORDER_TO_FRONT " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+            Log.e("FORPDA_LOG", "FLAG_ACTIVITY_NO_ANIMATION " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_NO_ANIMATION));
+            Log.e("FORPDA_LOG", "FLAG_ACTIVITY_CLEAR_TASK " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_CLEAR_TASK));
+            Log.e("FORPDA_LOG", "FLAG_ACTIVITY_TASK_ON_HOME " + (newIntent.getFlags() & Intent.FLAG_ACTIVITY_TASK_ON_HOME));*/
             Log.d("FORPDA_LOG", "POST on new intent " + newIntent);
             IntentHandler.handle(newIntent.getData().toString());
         });
@@ -158,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements TabManager.TabLis
     }
 
     public void updateTabList() {
-        tabDrawer.notifyTabsChanged();
+        drawers.notifyTabsChanged();
     }
 
     @Override
@@ -173,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements TabManager.TabLis
 
     @Override
     public void onSelectTab(TabFragment fragment) {
-        menuDrawer.setActive(fragment.getClass().getSimpleName());
+        drawers.setActiveMenu(fragment);
         Log.d("FORPDA_LOG", "onselect " + fragment);
     }
 
@@ -234,8 +231,7 @@ public class MainActivity extends AppCompatActivity implements TabManager.TabLis
         super.onResume();
         Log.d("kekos", "ACTIVE TAB " + TabManager.getActiveIndex() + " : " + TabManager.getActiveTag());
         receiver.registerReceiver();
-        menuDrawer.setStatusBarHeight(App.getStatusBarHeight());
-        tabDrawer.setStatusBarHeight(App.getStatusBarHeight());
+        drawers.setStatusBarHeight(App.getStatusBarHeight());
     }
 
     @Override
@@ -249,12 +245,12 @@ public class MainActivity extends AppCompatActivity implements TabManager.TabLis
         super.onDestroy();
         receiver.unregisterReceiver();
         Repository.removeInstance();
-        menuDrawer.destroy();
+        drawers.destroy();
         drawerHeader.destroy();
         webViewCleaner.cancel();
         webViewCleaner.purge();
         webViews.clear();
-        Log.e("SUKA", "ACTIVITY DESTROY");
+        Log.e("FORPDA_LOG", "ACTIVITY DESTROY");
     }
 
     class WebViewCleanerTask extends TimerTask {

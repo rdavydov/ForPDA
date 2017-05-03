@@ -6,11 +6,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import forpdateam.ru.forpda.api.Api;
+import forpdateam.ru.forpda.api.Utils;
 import forpdateam.ru.forpda.api.others.pagination.Pagination;
 import forpdateam.ru.forpda.api.search.models.SearchItem;
 import forpdateam.ru.forpda.api.search.models.SearchResult;
 import forpdateam.ru.forpda.api.search.models.SearchSettings;
-import forpdateam.ru.forpda.api.Utils;
 
 /**
  * Created by radiationx on 01.02.17.
@@ -49,8 +49,10 @@ public class Search {
                 matcher = forumTopicsPattern.matcher(response);
                 while (matcher.find()) {
                     item = new SearchItem();
-                    item.setId(Integer.parseInt(matcher.group(1)));
+                    item.setTopicId(Integer.parseInt(matcher.group(1)));
+                    //item.setId(Integer.parseInt(matcher.group(1)));
                     item.setTitle(Utils.fromHtml(matcher.group(4)));
+                    item.setForumId(Integer.parseInt(matcher.group(5)));
                     item.setUserId(Integer.parseInt(matcher.group(9)));
                     item.setNick(Utils.fromHtml(matcher.group(10)));
                     item.setDate(matcher.group(11));
