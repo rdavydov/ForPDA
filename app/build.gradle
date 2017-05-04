@@ -127,7 +127,6 @@ dependencies {
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.github.linger1216:labelview:v1.1.2'
     compile 'me.gujun.android.taggroup:library:1.4@aar'
-    compile 'br.com.simplepass:loading-button-android:1.6.5'
     compile group: 'org.ccil.cowan.tagsoup', name: 'tagsoup', version: '1.2'
     compile 'org.bsc.util:minitemplator-repackaged:1.2'
     compile 'com.lapism:searchview:4.0'

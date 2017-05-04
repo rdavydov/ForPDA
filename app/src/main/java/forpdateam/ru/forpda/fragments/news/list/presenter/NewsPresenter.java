@@ -1,9 +1,9 @@
-package forpdateam.ru.forpda.fragments.news.presenter;
+package forpdateam.ru.forpda.fragments.news.list.presenter;
 
 import android.support.annotation.NonNull;
 
 import forpdateam.ru.forpda.data.Repository;
-import forpdateam.ru.forpda.fragments.news.INewsView;
+import forpdateam.ru.forpda.fragments.news.list.INewsView;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Consumer;
 
@@ -102,7 +102,7 @@ public class NewsPresenter implements INewsPresenter {
         log(TAG + " LoadMoreNewItems");
         disposable.add(repository.getLoadMoreNewsListData(category, pageNumber, lastUrl)
                 .subscribe(newsCallbackModel -> {
-                    newsView.showMoreNewNews(newsCallbackModel);
+//                    newsView.showMoreNewNews(newsCallbackModel);
                 }, throwable -> {
 
                     newsView.showErrorView(throwable, ERROR_LOAD_MORE_NEW_DATA);
@@ -117,7 +117,7 @@ public class NewsPresenter implements INewsPresenter {
     @Override
     public void loadMore(@NonNull String category, int pageNumber) {
         disposable.add(repository.loadMoreNewsItems(category, pageNumber)
-                .subscribe(list -> newsView.showLoadMore(list, false),
+                .subscribe(list -> newsView.showLoadMore(list),
                         new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
@@ -125,4 +125,6 @@ public class NewsPresenter implements INewsPresenter {
                     }
                 }));
     }
+
+
 }

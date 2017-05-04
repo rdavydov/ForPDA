@@ -88,7 +88,7 @@ public class NewsParser {
                 model.setLink(matcher.group(1));
                 model.setImageUrl(matcher.group(3));
                 model.setTitle(Utils.fromHtml(matcher.group(2)));
-                model.setCommentsCount(matcher.group(4));
+                model.setCommentsCount(Integer.parseInt(matcher.group(4)));
                 model.setDate(matcher.group(5));
                 model.setAuthor(Utils.fromHtml(matcher.group(6)));
                 model.setDescription(Utils.fromHtml(matcher.group(7)));

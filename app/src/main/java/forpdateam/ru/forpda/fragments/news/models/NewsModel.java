@@ -19,7 +19,7 @@ public class NewsModel extends RealmObject {
     public String category;
     public String imgLink;
     public String title;
-    public String commentsCount;
+    public int commentsCount;
     public String date;
     public String author;
     public String description;

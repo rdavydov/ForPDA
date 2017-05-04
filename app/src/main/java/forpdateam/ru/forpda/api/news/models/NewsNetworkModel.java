@@ -9,7 +9,7 @@ public class NewsNetworkModel {
     private String link;
     private String title;
     private String imageUrl;
-    private String commentsCount;
+    private int commentsCount;
     private String date;
     private String author;
     private String description;
@@ -39,11 +39,11 @@ public class NewsNetworkModel {
         this.imageUrl = imageUrl;
     }
 
-    public String getCommentsCount() {
+    public int getCommentsCount() {
         return commentsCount;
     }
 
-    public void setCommentsCount(String commentsCount) {
+    public void setCommentsCount(int commentsCount) {
         this.commentsCount = commentsCount;
     }
 

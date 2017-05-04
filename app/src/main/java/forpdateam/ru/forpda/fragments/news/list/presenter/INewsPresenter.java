@@ -1,9 +1,9 @@
-package forpdateam.ru.forpda.fragments.news.presenter;
+package forpdateam.ru.forpda.fragments.news.list.presenter;
 
 import android.support.annotation.NonNull;
 
 import forpdateam.ru.forpda.data.Repository;
-import forpdateam.ru.forpda.fragments.news.INewsView;
+import forpdateam.ru.forpda.fragments.news.list.INewsView;
 
 /**
  * Created by isanechek on 12.01.17.

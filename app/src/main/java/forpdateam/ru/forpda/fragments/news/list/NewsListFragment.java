@@ -1,4 +1,4 @@
-package forpdateam.ru.forpda.fragments.news;
+package forpdateam.ru.forpda.fragments.news.list;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,8 +11,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -22,16 +22,16 @@ import forpdateam.ru.forpda.data.Repository;
 import forpdateam.ru.forpda.fragments.TabFragment;
 import forpdateam.ru.forpda.fragments.news.models.NewsCallbackModel;
 import forpdateam.ru.forpda.fragments.news.models.NewsModel;
-import forpdateam.ru.forpda.fragments.news.presenter.NewsPresenter;
+import forpdateam.ru.forpda.fragments.news.list.presenter.NewsPresenter;
 
 import static forpdateam.ru.forpda.utils.Utils.log;
 
 /**
- * Created by radiationx on 31.07.16.
+ * Created by isanechek on 5/3/17.
  */
-public class NewsListFragment extends TabFragment implements INewsView, NewsListAdapter.OnItemClickListener,
-        NewsListAdapter.OnItemLongClickListener,
-        NewsListAdapter.OnReloadDataListener {
+
+public class NewsListFragment extends TabFragment implements INewsView {
+
     private static final String LINk = "http://4pda.ru";
     private static final String TAG = "NewsListFragment";
     private static final int VISIBLE_THRESHOLD = 5;
@@ -39,14 +39,12 @@ public class NewsListFragment extends TabFragment implements INewsView, NewsList
     private TextView text;
     private SwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
-    private NewsListAdapter adapter;
     private LinearLayoutManager manager;
     private View srProgress;
     private int pageSize = 1;
     private boolean mIsLoading;
     private NewsPresenter presenter;
-
-
+    private NewsListAdapter adapter;
 
     public NewsListFragment(){
         configuration.setAlone(true);
@@ -85,17 +83,14 @@ public class NewsListFragment extends TabFragment implements INewsView, NewsList
         viewsReady();
     }
 
-
     private void setupRecyclerView(Bundle savedInstanceState) {
         manager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(manager);
-        recyclerView.setItemViewCacheSize(50);
-        adapter = new NewsListAdapter();
-        adapter.setOnItemClickListener(this);
-        adapter.setOnItemLongClickListener(this);
-        adapter.setOnReloadDataListener(this);
+        recyclerView.setItemViewCacheSize(30);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        adapter = new NewsListAdapter();
+        adapter.addHeader(inflateHeaderFooter());
         recyclerView.setAdapter(adapter);
         if (savedInstanceState != null) {
             recyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("scrollPosition"));
@@ -111,7 +106,6 @@ public class NewsListFragment extends TabFragment implements INewsView, NewsList
                 if (!mIsLoading && totalItemCount <= (lastVisibleItem + VISIBLE_THRESHOLD)) {
                     mIsLoading = true;
                     pageSize++;
-                    adapter.addMoreLoadingProgress();
                     presenter.loadMore(Constants.NEWS_CATEGORY_ALL, pageSize);
                 }
             }
@@ -127,82 +121,48 @@ public class NewsListFragment extends TabFragment implements INewsView, NewsList
     @Override
     public void loadData() {
         presenter.loadData(Constants.NEWS_CATEGORY_ALL);
-
-    }
-
-    @Override
-    public void onItemClick(int position, View view) {
-
-    }
-
-    @Override
-    public void onItemLongClick(int position, View view) {
-
-    }
-
-    @Override
-    public void onPause() {
-        presenter.unbindView();
-        super.onPause();
     }
 
     @Override
     public void showData(List<NewsModel> list) {
         refreshLayout.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.VISIBLE);
-        adapter.addAll(list, false);
+        adapter.addAll(list);
     }
 
     @Override
     public void showUpdateData(NewsCallbackModel model) {
-        int size = model.getCache().size();
-        if (size > 0) {
-            Toast.makeText(getActivity(), size + " новых новостей", Toast.LENGTH_SHORT).show();
-            adapter.addAll(model.getCache(), false);
-            adapter.addMoreNewsLoadingItem(model.isShowMore());
-        } else {
-            Toast.makeText(getActivity(), "Нет новых новостей", Toast.LENGTH_SHORT).show();
-        }
-
+        adapter.addAll(0, model.getCache());
     }
 
     @Override
-    public void showLoadMore(List<NewsModel> list, boolean hide) {
-        mIsLoading = false;
-        if (!hide) {
-            adapter.removeMoreLoadingProgress();
-            adapter.addAll(list, true);
-        } else {
-            adapter.removeMoreLoadingProgress();
-        }
-    }
-
-    @Override
-    public void showMoreNewNews(NewsCallbackModel model) {
+    public void showLoadMore(List<NewsModel> list) {
 
     }
 
     @Override
     public void showUpdateProgress(boolean show) {
-        refreshLayout.setRefreshing(show);
+
     }
 
     @Override
     public void showBackgroundWorkProgress(boolean show) {
+
     }
 
     @Override
     public void showErrorView(Throwable throwable, @NonNull String codeError) {
-    }
 
+    }
 
     @Override
     public void showPopUp(@NonNull String viewCode) {
 
     }
 
-    @Override
-    public void onReloadDataClick() {
-
+    private View inflateHeaderFooter() {
+        LinearLayout headerFooter = (LinearLayout) getActivity().getLayoutInflater().inflate(R.layout.news_list_item_header, recyclerView, false);
+//        headerFooter.setUseCompatPadding(true);
+        return headerFooter;
     }
 }
