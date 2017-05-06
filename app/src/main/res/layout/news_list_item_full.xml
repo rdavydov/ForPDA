@@ -6,7 +6,9 @@
     android:id="@+id/news_list_item_root_card"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/dp2"
+    android:layout_marginBottom="@dimen/dp2">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -33,9 +35,9 @@
                     android:text="29.04.17"
                     android:textSize="8sp"
                     android:layout_marginEnd="1dp"
-                    android:background="#f5f5f5"
+                    android:background="@drawable/circle_background1"
                     android:padding="@dimen/dp4"
-                    tools:ignore="HardcodedText"/>
+                    tools:ignore="HardcodedText,SmallSp"/>
 
                 <TextView
                     android:id="@+id/news_list_item_author_tv"
@@ -45,9 +47,9 @@
                     android:textSize="8sp"
                     android:layout_marginLeft="1dp"
                     android:layout_marginRight="1dp"
-                    android:background="#f5f5f5"
+                    android:background="@drawable/circle_background1"
                     android:padding="4dp"
-                    tools:ignore="HardcodedText"/>
+                    tools:ignore="HardcodedText,SmallSp"/>
 
                 <TextView
                     android:id="@+id/news_list_item_category_tv"
@@ -57,9 +59,9 @@
                     android:textSize="8sp"
                     android:layout_marginLeft="1dp"
                     android:layout_marginRight="1dp"
-                    android:background="#f5f5f5"
+                    android:background="@drawable/circle_background1"
                     android:padding="4dp"
-                    tools:ignore="HardcodedText"/>
+                    tools:ignore="HardcodedText,SmallSp"/>
 
 
             </LinearLayout>
@@ -69,6 +71,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="3"
+                android:layout_marginTop="@dimen/dp4"
                 android:layout_marginLeft="@dimen/dp8"
                 android:layout_marginRight="@dimen/dp8"
                 android:textSize="16sp"
@@ -133,14 +136,14 @@
             android:text="125"
             android:textSize="8sp"
             android:padding="4dp"
-            android:background="#f5f5f5"
-            tools:ignore="HardcodedText"/>
+            android:background="@drawable/circle_background"
+            tools:ignore="HardcodedText,SmallSp"/>
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginLeft="@dimen/dp8"
-        android:layout_marginRight="@dimen/dp8"
-        android:background="@color/text_second_color"/>
+    <!--<View-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="1dp"-->
+        <!--android:layout_marginLeft="@dimen/dp8"-->
+        <!--android:layout_marginRight="@dimen/dp8"-->
+        <!--android:background="@color/text_second_color"/>-->
 </LinearLayout>

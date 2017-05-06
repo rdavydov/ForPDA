@@ -19,4 +19,8 @@
     <dimen name="dp56">56dp</dimen>
     <dimen name="dp64">64dp</dimen>
     <dimen name="default_keyboard_height">250dp</dimen>
+
+
+    <!--Circle Background-->
+    <dimen name="circle_background_radius">55dp</dimen>
 </resources>

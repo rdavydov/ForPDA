@@ -27,5 +27,6 @@
 
     <color name="divider_color">@android:color/transparent</color>
     <color name="background">#fafafa</color>
+    <color name="second_background">#E0E0E0</color>
 
 </resources>

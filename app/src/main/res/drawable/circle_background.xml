@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/second_background" />
+    <corners
+        android:topLeftRadius="@dimen/circle_background_radius"
+        android:topRightRadius="@dimen/circle_background_radius"
+        android:bottomLeftRadius="@dimen/circle_background_radius"
+        android:bottomRightRadius="1dp"
+        />
+    <size
+        android:height="11dp"
+        android:width="10dp"/>
+
+    <padding
+        android:bottom="@dimen/dp2"
+        android:left="@dimen/dp2"
+        android:right="@dimen/dp2"
+        android:top="@dimen/dp2"/>
+</shape>
