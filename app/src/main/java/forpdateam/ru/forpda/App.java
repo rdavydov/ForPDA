@@ -35,7 +35,7 @@ import java.util.Map;
 
 import biz.source_code.miniTemplator.MiniTemplator;
 import forpdateam.ru.forpda.client.Client;
-import forpdateam.ru.forpda.data.NewsRepository;
+//import forpdateam.ru.forpda.data.NewsRepository;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
@@ -163,7 +163,7 @@ public class App extends android.app.Application {
                 .deleteRealmIfMigrationNeeded()
                 .build();
 
-        NewsRepository.createInstance();
+//        NewsRepository.createInstance();
 
         Client.getInstance();
         initImageLoader(this);

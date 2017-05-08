@@ -22,15 +22,13 @@ import java.util.List;
 import forpdateam.ru.forpda.R;
 import forpdateam.ru.forpda.TabManager;
 import forpdateam.ru.forpda.api.news.Constants;
-import forpdateam.ru.forpda.data.NewsRepository;
 import forpdateam.ru.forpda.fragments.TabFragment;
 import forpdateam.ru.forpda.fragments.news.details.NewsDetailsFragment;
 import forpdateam.ru.forpda.fragments.news.list.adapters.NLAdapter;
 import forpdateam.ru.forpda.fragments.news.list.adapters.NLTAdapter;
 import forpdateam.ru.forpda.fragments.news.list.adapters.holders.NewsViewHolder;
-import forpdateam.ru.forpda.models.news.NewsCallbackModel;
-import forpdateam.ru.forpda.models.news.NewsModel;
 import forpdateam.ru.forpda.fragments.news.list.presenter.NewsPresenter;
+import forpdateam.ru.forpda.models.news.NewsModel;
 import forpdateam.ru.forpda.models.news.TopNewsModel;
 
 import static forpdateam.ru.forpda.utils.Utils.log;
@@ -80,7 +78,7 @@ public class NewsListFragment extends TabFragment implements INewsView {
         refreshLayout.setColorSchemeColors(ContextCompat.getColor(getContext(), R.color.colorAccent));
         recyclerView = (RecyclerView) findViewById(R.id.news_list);
         presenter = new NewsPresenter();
-        presenter.bindView(this, NewsRepository.getInstance());
+        presenter.bindView(this);
 
         refreshLayout.setOnRefreshListener(() -> presenter.updateData(Constants.NEWS_CATEGORY_ALL, false));
         return view;

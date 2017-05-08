@@ -3,15 +3,12 @@ package forpdateam.ru.forpda.fragments.news.list.presenter;
 import android.support.annotation.NonNull;
 
 import com.annimon.stream.Stream;
-import com.annimon.stream.function.Consumer;
-import com.annimon.stream.function.Predicate;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import forpdateam.ru.forpda.App;
 import forpdateam.ru.forpda.api.Api;
-import forpdateam.ru.forpda.data.NewsRepository;
 import forpdateam.ru.forpda.fragments.news.list.INewsView;
 import forpdateam.ru.forpda.models.news.NewsModel;
 import forpdateam.ru.forpda.models.news.TopNewsModel;
@@ -36,7 +33,7 @@ public class NewsPresenter implements INewsPresenter {
     private Realm mRealm;
 
     @Override
-    public void bindView(INewsView iNewsView, NewsRepository newsRepository) {
+    public void bindView(INewsView iNewsView) {
         this.newsView = iNewsView;
         mRealm = Realm.getInstance(App.getInstance().getNewsRealmConfig());
         disposable = new CompositeDisposable();

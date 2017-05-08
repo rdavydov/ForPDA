@@ -2,7 +2,6 @@ package forpdateam.ru.forpda.fragments.news.list.presenter;
 
 import android.support.annotation.NonNull;
 
-import forpdateam.ru.forpda.data.NewsRepository;
 import forpdateam.ru.forpda.fragments.news.list.INewsView;
 
 /**
@@ -11,7 +10,7 @@ import forpdateam.ru.forpda.fragments.news.list.INewsView;
 
 public interface INewsPresenter {
 
-    void bindView(INewsView iNewsView, NewsRepository newsRepository);
+    void bindView(INewsView iNewsView);
     void unbindView();
 
     void loadData(String category);
