@@ -17,7 +17,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import forpdateam.ru.forpda.client.NetworkStateReceiver;
-import forpdateam.ru.forpda.data.Repository;
+import forpdateam.ru.forpda.data.NewsRepository;
 import forpdateam.ru.forpda.fragments.TabFragment;
 import forpdateam.ru.forpda.utils.ExtendedWebView;
 import forpdateam.ru.forpda.utils.IntentHandler;
@@ -244,7 +244,9 @@ public class MainActivity extends AppCompatActivity implements TabManager.TabLis
     protected void onDestroy() {
         super.onDestroy();
         receiver.unregisterReceiver();
-        Repository.removeInstance();
+        if (NewsRepository.getInstance() != null) {
+            NewsRepository.getInstance().removeInstance();
+        }
         drawers.destroy();
         drawerHeader.destroy();
         webViewCleaner.cancel();

@@ -4,8 +4,9 @@ import android.support.annotation.NonNull;
 
 import java.util.List;
 
-import forpdateam.ru.forpda.fragments.news.models.NewsCallbackModel;
-import forpdateam.ru.forpda.fragments.news.models.NewsModel;
+import forpdateam.ru.forpda.models.news.NewsCallbackModel;
+import forpdateam.ru.forpda.models.news.NewsModel;
+import forpdateam.ru.forpda.models.news.TopNewsModel;
 
 /**
  * Created by isanechek on 12.01.17.
@@ -13,7 +14,9 @@ import forpdateam.ru.forpda.fragments.news.models.NewsModel;
 
 public interface INewsView {
     void showData(List<NewsModel> list);
-    void showUpdateData(NewsCallbackModel model);
+    void showTopCommentsNews(List<TopNewsModel> list);
+    void updateTopCommentsList(TopNewsModel model);
+    void updateDataList(List<NewsModel> list);
     void showLoadMore(List<NewsModel> list);
     void showUpdateProgress(boolean show);
     void showBackgroundWorkProgress(boolean show);

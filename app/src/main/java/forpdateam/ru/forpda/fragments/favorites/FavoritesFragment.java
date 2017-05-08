@@ -23,7 +23,7 @@ import forpdateam.ru.forpda.api.favorites.Favorites;
 import forpdateam.ru.forpda.api.favorites.interfaces.IFavItem;
 import forpdateam.ru.forpda.api.favorites.models.FavData;
 import forpdateam.ru.forpda.api.favorites.models.FavItem;
-import forpdateam.ru.forpda.bdobjects.favorites.FavItemBd;
+import forpdateam.ru.forpda.models.favorites.FavItemBd;
 import forpdateam.ru.forpda.client.Client;
 import forpdateam.ru.forpda.client.ClientHelper;
 import forpdateam.ru.forpda.fragments.TabFragment;

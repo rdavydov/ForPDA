@@ -15,7 +15,7 @@ import forpdateam.ru.forpda.App;
 import forpdateam.ru.forpda.R;
 import forpdateam.ru.forpda.TabManager;
 import forpdateam.ru.forpda.api.qms.models.QmsThemes;
-import forpdateam.ru.forpda.bdobjects.qms.QmsThemesBd;
+import forpdateam.ru.forpda.models.qms.QmsThemesBd;
 import forpdateam.ru.forpda.fragments.TabFragment;
 import forpdateam.ru.forpda.fragments.qms.adapters.QmsThemesAdapter;
 import forpdateam.ru.forpda.rxapi.RxApi;

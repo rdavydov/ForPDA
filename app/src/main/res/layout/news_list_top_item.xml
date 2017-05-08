@@ -6,12 +6,11 @@
     android:layout_width="100dp"
     android:layout_height="148dp"
     android:layout_marginTop="@dimen/dp2"
-    android:layout_marginStart="@dimen/dp4"
     android:layout_marginBottom="@dimen/dp2"
     app:cardBackgroundColor="@color/cardview_light_background"
     app:cardUseCompatPadding="true"
     app:cardPreventCornerOverlap="false"
-    android:elevation="@dimen/dp2"
+    android:elevation="@dimen/dp4"
     app:cardCornerRadius="2dp"
     tools:ignore="UnusedAttribute">
 
@@ -28,7 +27,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="horizontal"
             android:layout_margin="@dimen/dp2">
             <LinearLayout
@@ -41,7 +40,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="WTF American boy let's go with you!"
-                    android:textSize="10sp"
+                    android:textSize="8sp"
                     android:maxLines="3"
                     android:layout_gravity="center_horizontal"
                     android:layout_margin="1dp"

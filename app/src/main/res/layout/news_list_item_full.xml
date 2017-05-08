@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<forpdateam.ru.forpda.views.FixCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -7,143 +7,141 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/dp2"
-    android:layout_marginBottom="@dimen/dp2">
+    android:background="#fff"
+    app:cardElevation="@dimen/dp4">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
+            android:orientation="horizontal">
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp16"
-                android:layout_marginStart="@dimen/dp6"
-                android:layout_marginEnd="@dimen/dp8"
-                android:orientation="horizontal">
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp16"
+                    android:layout_marginStart="@dimen/dp6"
+                    android:layout_marginEnd="@dimen/dp8"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/news_list_item_date_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="29.04.17"
+                        android:textSize="8sp"
+                        android:layout_marginEnd="1dp"
+                        android:background="@drawable/circle_background1"
+                        android:padding="@dimen/dp4"
+                        tools:ignore="HardcodedText,SmallSp"/>
+
+                    <TextView
+                        android:id="@+id/news_list_item_author_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Valera Pupkin"
+                        android:textSize="8sp"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:background="@drawable/circle_background1"
+                        android:padding="4dp"
+                        tools:ignore="HardcodedText,SmallSp"/>
+
+                    <TextView
+                        android:id="@+id/news_list_item_category_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Обзор"
+                        android:textSize="8sp"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginRight="1dp"
+                        android:background="@drawable/circle_background1"
+                        android:padding="4dp"
+                        tools:ignore="HardcodedText,SmallSp"/>
+
+
+                </LinearLayout>
 
                 <TextView
-                    android:id="@+id/news_list_item_date_tv"
+                    android:id="@+id/news_list_item_title_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="29.04.17"
-                    android:textSize="8sp"
-                    android:layout_marginEnd="1dp"
-                    android:background="@drawable/circle_background1"
-                    android:padding="@dimen/dp4"
-                    tools:ignore="HardcodedText,SmallSp"/>
-
-                <TextView
-                    android:id="@+id/news_list_item_author_tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Valera Pupkin"
-                    android:textSize="8sp"
-                    android:layout_marginLeft="1dp"
-                    android:layout_marginRight="1dp"
-                    android:background="@drawable/circle_background1"
-                    android:padding="4dp"
-                    tools:ignore="HardcodedText,SmallSp"/>
-
-                <TextView
-                    android:id="@+id/news_list_item_category_tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Обзор"
-                    android:textSize="8sp"
-                    android:layout_marginLeft="1dp"
-                    android:layout_marginRight="1dp"
-                    android:background="@drawable/circle_background1"
-                    android:padding="4dp"
-                    tools:ignore="HardcodedText,SmallSp"/>
-
+                    android:maxLines="3"
+                    android:layout_marginTop="@dimen/dp4"
+                    android:layout_marginLeft="@dimen/dp8"
+                    android:layout_marginRight="@dimen/dp8"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:ellipsize="end"
+                    android:text="Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. "/>
 
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/news_list_item_title_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxLines="3"
-                android:layout_marginTop="@dimen/dp4"
-                android:layout_marginLeft="@dimen/dp8"
-                android:layout_marginRight="@dimen/dp8"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:ellipsize="end"
-                android:text="Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. "/>
-
-        </LinearLayout>
-        <!--<ImageView-->
+            <!--<ImageView-->
             <!--android:id="@+id/news_list_item_pic"-->
             <!--android:layout_width="100dp"-->
             <!--android:layout_height="100dp"-->
             <!--android:layout_margin="10dp"-->
             <!--android:scaleType="centerCrop"/>-->
 
-        <com.lid.lib.LabelImageView
-            android:id="@+id/news_list_item_pic"
-            app:label_orientation="RIGHT_TOP"
-            app:label_text="New"
-            app:label_backgroundColor="#f5f5f5"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_margin="10dp"
-            android:scaleType="centerCrop" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/news_list_item_description_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:maxLines="4"
-        android:paddingBottom="8dp"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:paddingTop="2dp"
-        android:text="Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. "
-        android:textSize="12sp"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
-
-        <me.gujun.android.taggroup.TagGroup
-            android:id="@+id/news_list_item_tag_group"
-            android:layout_width="0dp"
-            android:padding="@dimen/dp4"
-            android:layout_marginEnd="@dimen/dp8"
-            android:minHeight="@dimen/dp8"
-            android:layout_gravity="center_vertical"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            app:atg_textSize="8sp"
-            app:atg_borderColor="@color/text_second_color"/>
+            <com.lid.lib.LabelImageView
+                android:id="@+id/news_list_item_pic"
+                app:label_orientation="RIGHT_TOP"
+                app:label_text="New"
+                app:label_backgroundColor="#f5f5f5"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_margin="10dp"
+                android:scaleType="centerCrop" />
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/news_list_item_comments_tv"
+            android:id="@+id/news_list_item_description_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="125"
-            android:textSize="8sp"
-            android:padding="4dp"
-            android:background="@drawable/circle_background"
-            tools:ignore="HardcodedText,SmallSp"/>
-    </LinearLayout>
+            android:ellipsize="end"
+            android:maxLines="4"
+            android:paddingBottom="8dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="2dp"
+            android:text="Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. Test. "
+            android:textSize="12sp"/>
 
-    <!--<View-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="1dp"-->
-        <!--android:layout_marginLeft="@dimen/dp8"-->
-        <!--android:layout_marginRight="@dimen/dp8"-->
-        <!--android:background="@color/text_second_color"/>-->
-</LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <LinearLayout
+                android:id="@+id/news_list_item_tag_group"
+                android:layout_width="0dp"
+                android:padding="@dimen/dp4"
+                android:layout_marginEnd="@dimen/dp8"
+                android:minHeight="@dimen/dp8"
+                android:layout_gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_weight="1"  />
+            <TextView
+                android:id="@+id/news_list_item_comments_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="125"
+                android:textSize="8sp"
+                android:padding="4dp"
+                android:background="@drawable/circle_background"
+                tools:ignore="HardcodedText,SmallSp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</forpdateam.ru.forpda.views.FixCardView>

@@ -4,8 +4,8 @@ import android.support.annotation.NonNull;
 
 import java.util.List;
 
-import forpdateam.ru.forpda.fragments.news.models.NewsCallbackModel;
-import forpdateam.ru.forpda.fragments.news.models.NewsModel;
+import forpdateam.ru.forpda.models.news.NewsCallbackModel;
+import forpdateam.ru.forpda.models.news.NewsModel;
 import io.reactivex.Single;
 
 /**
@@ -15,6 +15,11 @@ import io.reactivex.Single;
 public interface IRepository {
     /*NEWS*/
     Single<NewsCallbackModel> getNewsList(@NonNull String category);
+    Single<List<NewsModel>> getTopCommentsNews();
+
+    boolean updateRead(@NonNull String id);
+
+
     Single<NewsCallbackModel> getLoadMoreNewsListData(@NonNull String category, int pageNumber, String lastUrl);
     Single<NewsCallbackModel> updateNewsListData(@NonNull String category);
     Single<List<NewsModel>> loadMoreNewsItems(@NonNull String category, int pageNumber);

@@ -19,7 +19,7 @@ import forpdateam.ru.forpda.R;
 import forpdateam.ru.forpda.TabManager;
 import forpdateam.ru.forpda.api.Api;
 import forpdateam.ru.forpda.api.forum.models.ForumItemTree;
-import forpdateam.ru.forpda.bdobjects.forum.ForumItemFlatBd;
+import forpdateam.ru.forpda.models.forum.ForumItemFlatBd;
 import forpdateam.ru.forpda.fragments.TabFragment;
 import forpdateam.ru.forpda.fragments.topics.TopicsFragment;
 import forpdateam.ru.forpda.rxapi.RxApi;

@@ -58,7 +58,7 @@ public class Client implements IWebClient {
         String session_id = App.getInstance().getPreferences().getString("cookie_session_id", null);
         String anonymous = App.getInstance().getPreferences().getString("cookie_anonymous", null);
         ClientHelper.setUserId(App.getInstance().getPreferences().getString("member_id", null));
-        Log.d("FORPDA_LOG", "INIT AUTH DATA " + member_id + " : " + pass_hash + " : " + session_id + " : " + App.getInstance().getPreferences().getString("member_id", null));
+//        Log.d("FORPDA_LOG", "INIT AUTH DATA " + member_id + " : " + pass_hash + " : " + session_id + " : " + App.getInstance().getPreferences().getString("member_id", null));
         if (member_id != null && pass_hash != null) {
             ClientHelper.setAuthState(ClientHelper.AUTH_STATE_LOGIN);
             //Первичная загрузка кукисов
@@ -103,8 +103,8 @@ public class Client implements IWebClient {
 
                 @Override
                 public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
-                    Log.d("FORPDA_LOG", "response url " + url.toString());
-                    Log.d("FORPDA_LOG", "response cookies size " + cookies.size());
+//                    Log.d("FORPDA_LOG", "response url " + url.toString());
+//                    Log.d("FORPDA_LOG", "response cookies size " + cookies.size());
                     for (Cookie cookie : cookies) {
                         Log.e("FORPDA_LOG", "Cookie: " + cookie.name() + " : " + cookie.value());
                     }
@@ -116,7 +116,7 @@ public class Client implements IWebClient {
 
                     if (matcher.find()) {
                         for (Cookie cookie : cookies) {
-                            Log.e("FORPDA_LOG", "AUTH response " + cookie.name() + " : " + cookie.value());
+//                            Log.e("FORPDA_LOG", "AUTH response " + cookie.name() + " : " + cookie.value());
                             boolean isMemberId = cookie.name().equals("member_id");
                             boolean isPassHash = cookie.name().equals("pass_hash");
                             boolean isSessionId = cookie.name().equals("session_id");

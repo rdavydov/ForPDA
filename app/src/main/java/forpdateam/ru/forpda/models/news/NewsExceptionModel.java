@@ -1,4 +1,4 @@
-package forpdateam.ru.forpda.fragments.news.models;
+package forpdateam.ru.forpda.models.news;
 
 import android.support.annotation.NonNull;
 

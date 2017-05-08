@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import forpdateam.ru.forpda.api.Api;
 import forpdateam.ru.forpda.api.Utils;
-import forpdateam.ru.forpda.api.news.models.NewsNetworkModel;
+import forpdateam.ru.forpda.models.news.NewsNetworkModel;
 import io.reactivex.Single;
 
 import static forpdateam.ru.forpda.api.news.Constants.NEWS_CATEGORY_ALL;
@@ -85,14 +85,14 @@ public class NewsParser {
             Matcher matcher = pattern.matcher(response);
             while (matcher.find()) {
                 NewsNetworkModel model = new NewsNetworkModel();
-                model.setLink(matcher.group(1));
-                model.setImageUrl(matcher.group(3));
-                model.setTitle(Utils.fromHtml(matcher.group(2)));
-                model.setCommentsCount(Integer.parseInt(matcher.group(4)));
-                model.setDate(matcher.group(5));
-                model.setAuthor(Utils.fromHtml(matcher.group(6)));
-                model.setDescription(Utils.fromHtml(matcher.group(7)));
-                model.setCategory(category);
+                model.link = matcher.group(1);
+                model.imageUrl = matcher.group(3);
+                model.title = Utils.fromHtml(matcher.group(2));
+                model.commentsCount = matcher.group(4);
+                model.date = matcher.group(5);
+                model.author = Utils.fromHtml(matcher.group(6));
+                model.description = Utils.fromHtml(matcher.group(7));
+                model.category = category;
                 cache.add(model);
             }
         } catch (Exception e) {
@@ -159,5 +159,9 @@ public class NewsParser {
 
     public static String getDetailsNewsItem(@NonNull String url) throws Exception {
         return Api.getWebClient().get(url);
+    }
+
+    public static Single<String> getDetailsSingle(String url) {
+        return Single.fromCallable(() -> getDetailsNewsItem(url));
     }
 }

@@ -1,21 +1,36 @@
 package forpdateam.ru.forpda.data;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.UiThread;
 
 import com.annimon.stream.Stream;
+import com.annimon.stream.function.Consumer;
+import com.annimon.stream.function.Predicate;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
+import forpdateam.ru.forpda.App;
 import forpdateam.ru.forpda.api.Api;
-import forpdateam.ru.forpda.data.local.LocalRepository;
-import forpdateam.ru.forpda.fragments.news.models.NewsCallbackModel;
-import forpdateam.ru.forpda.fragments.news.models.NewsModel;
+import forpdateam.ru.forpda.data.network.NewsLoader;
+import forpdateam.ru.forpda.models.news.NewsCallbackModel;
+import forpdateam.ru.forpda.models.news.NewsModel;
 import forpdateam.ru.forpda.realm.RealmMapping;
 import forpdateam.ru.forpda.utils.rx.RxSchedulers;
+import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.BehaviorSubject;
 import io.realm.Realm;
 
 import static forpdateam.ru.forpda.utils.Utils.log;
@@ -24,37 +39,49 @@ import static forpdateam.ru.forpda.utils.Utils.log;
  * Created by isanechek on 13.01.17.
  */
 
-public class Repository implements IRepository {
+public class NewsRepository implements Closeable, IRepository {
 
-    private static final String TAG = "Repository";
-    private static Repository INSTANCE;
+    private static final long MINIMUM_NETWORK_WAIT_SEC = 120;
+    private static final String TAG = "NewsRepository";
+    private static NewsRepository INSTANCE;
 
-    private LocalRepository localRepository;
-    private RxSchedulers rxSchedulers = new RxSchedulers();
+    private Realm mRealm;
+    private final NewsLoader mNewsLoader;
+    private Map<String, Long> lastNetworkRequest = new HashMap<>();
+    private CompositeDisposable disposable;
 
     public static void createInstance() {
         if (INSTANCE == null) {
-            INSTANCE = new Repository();
+            INSTANCE = new NewsRepository();
         }
     }
 
-    public static Repository getInstance() {
+    public static NewsRepository getInstance() {
         if (INSTANCE == null) {
-            throw new IllegalStateException("No repository instance available");
+            throw new IllegalStateException("No >>News<< Repository Instance Available");
         }
         return INSTANCE;
     }
 
-    public static void removeInstance() {
-        LocalRepository.removeInstance();
+    public void removeInstance() {
         INSTANCE = null;
+        if (disposable != null) {
+            disposable.clear();
+        }
+
+        if (mRealm != null) {
+            mRealm.close();
+        }
     }
 
-    private Repository() {
-        localRepository = LocalRepository.getInstance(Realm.getDefaultInstance());
+    @UiThread
+    private NewsRepository() {
+        log("NewsRepository");
+//        mRealm = Realm.getInstance(App.getInstance().getNewsRealmConfig());
+        mNewsLoader = new NewsLoader();
+        disposable = new CompositeDisposable();
     }
 
-    // ===========================================NEWS=========================================== //
 
     /**
      *
@@ -67,15 +94,45 @@ public class Repository implements IRepository {
      */
     @Override
     public Single<NewsCallbackModel> getNewsList(@NonNull String category) {
-        List<NewsModel> list = localRepository.getLocalNewsList2(category);
-        log(TAG + " getNewsList -> fromDb " +  list.size());
-        if (list.size() > 0) {
-            log(TAG+ " getNewsList ->  return from db");
-            return Single.fromCallable(() -> new NewsCallbackModel(list, false, false));
+        log("get list category --> " + category);
+        List<NewsModel> cache = mRealm.where(NewsModel.class).equalTo("category", category).findAll();
+        log("get list size " + cache.size());
+        if (cache.size() > 0) {
+            getNewsAndSaveFromNetwork(category);
         }
-        log(TAG + " getNewsList -> dot two");
-        return getNewsAndSaveFromNetwork(category)
-                .flatMap(list12 -> Single.fromCallable(() -> new NewsCallbackModel(list12, true, false)));
+        return Single.fromCallable(() -> new NewsCallbackModel(cache, false, false));
+    }
+
+    private void getNewsAndSaveFromNetwork(String category) {
+
+        disposable.add(Api.NewsList().getNewsListFromNetwork1(category, 0)
+                .subscribeOn(Schedulers.io())
+                .map(RealmMapping::getMappingUpdateNewsList)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(list -> {
+                    log("From net size " + list.size());
+                    mRealm.executeTransaction(realm -> realm.insertOrUpdate(list));
+                    NewsModel model = getTopModel(list);
+                    mRealm.executeTransaction(realm -> realm.insertOrUpdate(model));
+                }));
+
+    }
+
+    @Override
+    public Single<List<NewsModel>> getTopCommentsNews() {
+        return Single.fromCallable(() -> mRealm.where(NewsModel.class).equalTo("topComment", true).findAll());
+    }
+
+    @Override
+    public boolean updateRead(@NonNull String id) {
+       final boolean status = false;
+        mRealm.executeTransaction(realm -> {
+            NewsModel model = realm.where(NewsModel.class).equalTo("link", id).findFirst();
+            model.read = true;
+            model.timeIsDie = System.currentTimeMillis();
+        });
+        boolean read = mRealm.where(NewsModel.class).equalTo("link", id).findFirst().read;
+        return read;
     }
 
     /**
@@ -87,23 +144,21 @@ public class Repository implements IRepository {
     public Single<NewsCallbackModel> updateNewsListData(@NonNull String category) {
         return  Api.NewsList().getNewsListFromNetwork1(category, 0)
                 .map(RealmMapping::getMappingNewsList)
-                .compose(rxSchedulers.getIOToMainTransformerSingle())
                 .flatMap(list -> {
-                    List<NewsModel> cache = checkList(list, category);
-//                    localRepository.deleteNewsFromRealm(category);
-                    localRepository.saveNewsToRealm2(list);
+                    List<NewsModel> cache = checkList(list, mRealm.where(NewsModel.class).equalTo("category", category).findAll());
+                    mRealm.executeTransaction(realm -> realm.insertOrUpdate(cache));
                     return Single.fromCallable(() -> new NewsCallbackModel(cache));
                 });
     }
 
-    private List<NewsModel> checkList(List<NewsModel> list, String category) {
+    private List<NewsModel> checkList(List<NewsModel> list, List<NewsModel> cache2) {
         List<NewsModel> cache = new ArrayList<>();
-        List<NewsModel> cache2 = localRepository.getLocalNewsList2(category);
         Stream.of(list).filterNot(newModel -> Stream.of(cache2)
-                        .anyMatch(oldModel -> newModel.link.equals(oldModel.link)))
+                .anyMatch(oldModel -> newModel.link.equals(oldModel.link)))
                 .forEach(cache::add);
         return cache;
     }
+
 
     /**
      * НУЖНО ДЛЯ ХИТРОВЫЕБНОЙ ПОГИНАЦИИ
@@ -121,7 +176,6 @@ public class Repository implements IRepository {
     public Single<NewsCallbackModel> getLoadMoreNewsListData(@NonNull String category, int pageNumber, String lastUrl) {
         return Api.NewsList().getNewsListFromNetwork1(category, pageNumber)
                 .map(RealmMapping::getMappingNewsList)
-                .compose(rxSchedulers.getIOToMainTransformerSingle())
                 .flatMap(new Function<List<NewsModel>, SingleSource<? extends NewsCallbackModel>>() {
                     @Override
                     public SingleSource<? extends NewsCallbackModel> apply(List<NewsModel> list) throws Exception {
@@ -144,33 +198,17 @@ public class Repository implements IRepository {
     public Single<List<NewsModel>> loadMoreNewsItems(@NonNull String category, int pageNumber) {
         return  Api.NewsList()
                 .getNewsListFromNetwork1(category, pageNumber)
-                .map(RealmMapping::getMappingNewsList)
-                .compose(rxSchedulers.getIOToMainTransformerSingle());
+                .map(RealmMapping::getMappingNewsList);
     }
 
-    /**
-     *
-     * @param category - категория новостей
-     * @return - список новостей. Работает когда база пуста.
-     */
-    private Single<List<NewsModel>> getNewsAndSaveFromNetwork(String category) {
-        return  Api.NewsList().getNewsListFromNetwork1(category, 0)
-                .map(RealmMapping::getMappingNewsList)
-                .compose(rxSchedulers.getIOToMainTransformerSingle())
-                .flatMap(list -> {
-                    log(TAG + " getNewsAndSaveFromNetwork ->> " + list.size());
-                    localRepository.saveNewsToRealm2(list);
-                    return Single.fromCallable(() -> list);
-                });
+
+
+    private NewsModel getTopModel(List<NewsModel> list) {
+        return Stream.of(list).max((o1, o2) -> Integer.parseInt(o1.commentsCount) - Integer.parseInt(o2.commentsCount)).get();
     }
 
-//    private Single<ArrayList<NewsNetworkModel>> getFromNetwork(String category, int pageNumber) {
-//        return Single.fromCallable(() -> NewsParser.getNewsListFromNetwork1(category, pageNumber))
-//                .compose(rxSchedulers.getIOToMainTransformerSingle());
-//    }
+    @Override
+    public void close() throws IOException {
 
-    // ========================================NEWS END========================================== //
-
-    // ==========================================DEVDB=========================================== //
-    // ========================================DEVDB END========================================= //
+    }
 }

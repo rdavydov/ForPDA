@@ -35,7 +35,7 @@ import java.util.Map;
 
 import biz.source_code.miniTemplator.MiniTemplator;
 import forpdateam.ru.forpda.client.Client;
-import forpdateam.ru.forpda.data.Repository;
+import forpdateam.ru.forpda.data.NewsRepository;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
@@ -137,6 +137,8 @@ public class App extends android.app.Application {
         return app.refWatcher;
     }
 
+    private RealmConfiguration newsConfiguration;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -154,7 +156,15 @@ public class App extends android.app.Application {
                 .deleteRealmIfMigrationNeeded()
                 .build();
         Realm.setDefaultConfiguration(configuration);
-        Repository.createInstance();
+
+        newsConfiguration = new RealmConfiguration.Builder()
+                .name("newsforpda.realm")
+                .schemaVersion(1)
+                .deleteRealmIfMigrationNeeded()
+                .build();
+
+        NewsRepository.createInstance();
+
         Client.getInstance();
         initImageLoader(this);
         px2 = getContext().getResources().getDimensionPixelSize(R.dimen.dp2);
@@ -182,6 +192,10 @@ public class App extends android.app.Application {
         }
         keyboardHeight = getPreferences().getInt("keyboard_height", getContext().getResources().getDimensionPixelSize(R.dimen.default_keyboard_height));
         savedKeyboardHeight = keyboardHeight;
+    }
+
+    public RealmConfiguration getNewsRealmConfig() {
+        return newsConfiguration;
     }
 
     public int dpToPx(int dp) {
