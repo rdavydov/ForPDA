@@ -23,4 +23,6 @@
 
     <!--Circle Background-->
     <dimen name="circle_background_radius">55dp</dimen>
+
+    <dimen name="detail_backdrop_height">256dp</dimen>
 </resources>

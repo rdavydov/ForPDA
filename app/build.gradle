@@ -128,13 +128,12 @@ dependencies {
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.github.linger1216:labelview:v1.1.2'
     compile 'me.gujun.android.taggroup:library:1.4@aar'
-    compile group: 'org.ccil.cowan.tagsoup', name: 'tagsoup', version: '1.2'
+    compile 'org.ccil.cowan.tagsoup:tagsoup:1.2'
     compile 'org.bsc.util:minitemplator-repackaged:1.2'
     compile 'com.lapism:searchview:4.0'
     compile 'com.github.bmelnychuk:atv:1.2.9'
     compile 'com.afollestad:sectioned-recyclerview:0.2.3'
     compile 'ch.acra:acra:4.9.0'
-
     // For Debug
     debugCompile 'com.readystatesoftware.chuck:library:1.0.4'
     releaseCompile 'com.readystatesoftware.chuck:library-no-op:1.0.4'
