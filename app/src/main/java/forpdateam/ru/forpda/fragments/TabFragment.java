@@ -16,6 +16,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -263,6 +265,14 @@ public class TabFragment extends RxFragment {
         // TODO: 20.12.16 not work in 25.1.0
         //params.setBehavior(new ScrollAwareFABBehavior(fab.getContext(), null));
         fab.requestLayout();
+    }
+
+    protected void hideToolbar() {
+        appBarLayout.setVisibility(View.GONE);
+    }
+
+    protected void showToolbar() {
+        appBarLayout.setVisibility(View.VISIBLE);
     }
 
     @Override

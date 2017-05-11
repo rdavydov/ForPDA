@@ -66,6 +66,7 @@ public class NewsDetailsFragment extends TabFragment implements NDView {
         super.onCreate(savedInstanceState);
         msg("Пивет");
         if (getArguments() != null) {
+
             title = getArguments().getString(TITLE);
 //            configuration.setDefaultTitle(title);
             url = getArguments().getString(NEWS_URL);
@@ -85,7 +86,7 @@ public class NewsDetailsFragment extends TabFragment implements NDView {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        getContext().getTheme().applyStyle(R.style.AppTheme_NoActionBar, true);
+        hideToolbar();
         baseInflateFragment(inflater, R.layout.news_details_fragment);
         msg("OnCreateView");
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -113,6 +114,13 @@ public class NewsDetailsFragment extends TabFragment implements NDView {
 
 
         viewsReady();
+    }
+
+    @Override
+    public void onDestroy() {
+        mPresenter.unbindView();
+        showToolbar();
+        super.onDestroy();
     }
 
     @Override
@@ -195,6 +203,7 @@ public class NewsDetailsFragment extends TabFragment implements NDView {
 
         mAdapter.addAll(comments);
 
-
     }
+
+
 }
