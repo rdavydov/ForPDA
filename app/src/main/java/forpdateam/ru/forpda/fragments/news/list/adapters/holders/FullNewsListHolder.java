@@ -71,6 +71,7 @@ public class FullNewsListHolder extends RecyclerView.ViewHolder {
         tags.add("huinya");
         tags.add("zopa");
         tags.add("v hui");
+        /*==========================*/
         for (String tag: tags) {
             TextView tagView = new TextView(itemView.getContext());
             tagView.setText(tag);
