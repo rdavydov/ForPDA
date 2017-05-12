@@ -15,9 +15,10 @@ import forpdateam.ru.forpda.models.news.TopNewsModel;
 public interface INewsView {
     void showData(List<NewsModel> list);
     void showTopCommentsNews(List<TopNewsModel> list);
-    void updateTopCommentsList(TopNewsModel model);
+    void updateTopCommentsNews(TopNewsModel model);
     void updateDataList(List<NewsModel> list);
     void showLoadMore(List<NewsModel> list);
+    void showErrorLoadMore();
     void showUpdateProgress(boolean show);
     void showBackgroundWorkProgress(boolean show);
     void showErrorView(Throwable throwable, @NonNull String codeError);

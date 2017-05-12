@@ -112,7 +112,6 @@ public class NewsDetailsFragment extends TabFragment implements NDView {
         log("boom");
         mPresenter.bindView(this);
 
-
         viewsReady();
     }
 

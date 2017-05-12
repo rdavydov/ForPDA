@@ -23,10 +23,10 @@ import forpdateam.ru.forpda.R;
 import forpdateam.ru.forpda.TabManager;
 import forpdateam.ru.forpda.api.news.Constants;
 import forpdateam.ru.forpda.fragments.TabFragment;
+import forpdateam.ru.forpda.fragments.news.callbacks.NewsListClickListener;
 import forpdateam.ru.forpda.fragments.news.details.NewsDetailsFragment;
-import forpdateam.ru.forpda.fragments.news.list.adapters.NLAdapter;
-import forpdateam.ru.forpda.fragments.news.list.adapters.NLTAdapter;
-import forpdateam.ru.forpda.fragments.news.list.adapters.holders.NewsViewHolder;
+import forpdateam.ru.forpda.fragments.news.list.adapters.NewsListTopAdapter;
+import forpdateam.ru.forpda.fragments.news.list.adapters.NewsListAdapter;
 import forpdateam.ru.forpda.fragments.news.list.presenter.NewsPresenter;
 import forpdateam.ru.forpda.models.news.NewsModel;
 import forpdateam.ru.forpda.models.news.TopNewsModel;
@@ -49,9 +49,8 @@ public class NewsListFragment extends TabFragment implements INewsView {
     private int pageSize = 1;
     private boolean mIsLoading;
     private NewsPresenter presenter;
-    private NLAdapter adapter;
-    private NLTAdapter topAdapter;
-    private List<NewsModel> mModelList = new ArrayList<>();
+    private NewsListAdapter adapter;
+    private NewsListTopAdapter topAdapter;
 
     public NewsListFragment(){
         configuration.setAlone(true);
@@ -98,7 +97,7 @@ public class NewsListFragment extends TabFragment implements INewsView {
         recyclerView.setItemViewCacheSize(30);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        adapter = new NLAdapter();
+        adapter = new NewsListAdapter();
 
         recyclerView.setAdapter(adapter);
         if (savedInstanceState != null) {
@@ -122,7 +121,7 @@ public class NewsListFragment extends TabFragment implements INewsView {
             }
         });
 
-        adapter.setActionListener(new NewsViewHolder.ActionListener() {
+        adapter.setActionListener(new NewsListClickListener() {
             @Override
             public void click(View view, int position) {
                 log("CLICK");
@@ -169,15 +168,12 @@ public class NewsListFragment extends TabFragment implements INewsView {
     }
 
     @Override
-    public void updateTopCommentsList(TopNewsModel model) {
+    public void updateTopCommentsNews(TopNewsModel model) {
         if (topAdapter != null) {
             log("top adapter not null");
             topAdapter.add(0, model);
-        } else {
-            log("top adapter null");
         }
     }
-
     @Override
     public void updateDataList(List<NewsModel> list) {
         adapter.addAll(0, list);
@@ -187,6 +183,12 @@ public class NewsListFragment extends TabFragment implements INewsView {
     @Override
     public void showLoadMore(List<NewsModel> list) {
         log("showLoadMore");
+        adapter.addAll(adapter.getItemCount() + 1, list);
+    }
+
+    @Override
+    public void showErrorLoadMore() {
+
     }
 
     @Override
@@ -216,8 +218,10 @@ public class NewsListFragment extends TabFragment implements INewsView {
         RecyclerView topList = (RecyclerView) header.findViewById(R.id.news_list_top_list);
         topList.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         topList.setHasFixedSize(true);
-        topAdapter = new NLTAdapter();
-        topAdapter.addAll(list);
+        topAdapter = new NewsListTopAdapter();
+        if (list != null) {
+            topAdapter.addAll(list);
+        }
         topList.setAdapter(topAdapter);
         msg("Adapter top size " + list.size());
         msg("Top adapter size " + topAdapter.getItemCount());

@@ -1,12 +1,14 @@
 package forpdateam.ru.forpda.realm;
 
 import com.annimon.stream.Stream;
+import com.annimon.stream.function.Predicate;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import forpdateam.ru.forpda.models.news.NewsNetworkModel;
 import forpdateam.ru.forpda.models.news.NewsModel;
+import forpdateam.ru.forpda.models.news.TopNewsModel;
 
 /**
  * Created by isanechek on 28.09.16.
@@ -53,7 +55,19 @@ public class RealmMapping {
         return cache;
     }
 
-    public static NewsModel getTopModel(List<NewsModel> list) {
-        return Stream.of(list).max((o1, o2) -> Integer.parseInt(o1.commentsCount) - Integer.parseInt(o2.commentsCount)).get();
+    public static TopNewsModel getTopModel(List<TopNewsModel> list) {
+        return Stream.of(list)
+                .filter(value -> value.commentsCount != null)
+                .max((o1, o2) -> Integer.parseInt(o1.commentsCount) - Integer.parseInt(o2.commentsCount))
+                .get();
+    }
+
+    public static TopNewsModel mappingNewsToTop(NewsModel news) {
+        TopNewsModel model = new TopNewsModel();
+        model.link = news.link;
+        model.imgUrl = news.imgLink;
+        model.title = news.title;
+        model.commentsCount = news.commentsCount;
+        return model;
     }
 }

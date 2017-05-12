@@ -12,7 +12,7 @@ import forpdateam.ru.forpda.widgets.recycleradapter.RecyclerBindableAdapter;
  * Created by isanechek on 5/5/17.
  */
 
-public class NLTAdapter extends RecyclerBindableAdapter<TopNewsModel, NLTViewHolder> {
+public class NewsListTopAdapter extends RecyclerBindableAdapter<TopNewsModel, NLTViewHolder> {
 
     private NLTViewHolder.ActionListener mListener;
 

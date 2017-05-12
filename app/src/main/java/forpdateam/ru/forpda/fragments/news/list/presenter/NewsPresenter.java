@@ -12,9 +12,11 @@ import forpdateam.ru.forpda.api.Api;
 import forpdateam.ru.forpda.fragments.news.list.INewsView;
 import forpdateam.ru.forpda.models.news.NewsModel;
 import forpdateam.ru.forpda.models.news.TopNewsModel;
+import forpdateam.ru.forpda.pref.Preferences;
 import forpdateam.ru.forpda.realm.RealmMapping;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 
@@ -37,14 +39,11 @@ public class NewsPresenter implements INewsPresenter {
         this.newsView = iNewsView;
         mRealm = Realm.getInstance(App.getInstance().getNewsRealmConfig());
         disposable = new CompositeDisposable();
-        log(TAG + " bindView");
     }
 
     @Override
     public void unbindView() {
-        newsView = null;
         disposable.dispose();
-        log(TAG + " unbindView");
     }
 
     /**
@@ -57,8 +56,8 @@ public class NewsPresenter implements INewsPresenter {
         List<NewsModel> cache = mRealm.where(NewsModel.class).equalTo(NewsModel.CATEGORY, category).findAll();
         if (!cache.isEmpty()) {
             log("load data from cache");
-            findTopCommentsModel(cache);
             newsView.showData(cache);
+            showTopComments(cache);
 
         } else {
             log("load data from network");
@@ -69,40 +68,42 @@ public class NewsPresenter implements INewsPresenter {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(list -> {
                         log("load data from network size " + list.size());
-                        mRealm.executeTransaction(realm -> realm.insertOrUpdate(list));
-                        findTopCommentsModel(cache);
                         newsView.showUpdateProgress(false);
                         newsView.showData(list);
+                        showTopComments(list);
+                        mRealm.executeTransaction(realm -> realm.insertOrUpdate(list));
                     }));
         }
     }
 
-    private void findTopCommentsModel(List<NewsModel> list) {
-        NewsModel topModel = RealmMapping.getTopModel(list);
-        TopNewsModel model = new TopNewsModel();
-        model.link = topModel.link;
-        model.imgUrl = topModel.imgLink;
-        model.title = topModel.title;
-        model.commentsCount = topModel.commentsCount;
-        List<TopNewsModel> models = new ArrayList<>();
-        models.add(model);
-        newsView.showTopCommentsNews(models);
-        mRealm.executeTransaction(realm -> realm.insertOrUpdate(model));
-    }
+    private void showTopComments(List<NewsModel> list) {
+        // rewrite
+        if (Preferences.News.getShowTopCommentsNew()) {
+            List<TopNewsModel> cache = mRealm.where(TopNewsModel.class).findAll();
+            if (!cache.isEmpty()) {
+                newsView.showTopCommentsNews(cache);
+                List<TopNewsModel> cache1 = new ArrayList<>();
+                Stream.of(list)
+                        .filterNot(nValue -> Stream.of(cache)
+                                .anyMatch(oValue -> nValue.link.equals(oValue.link)))
+                        .map(RealmMapping::mappingNewsToTop)
+                        .filter(value -> value.commentsCount != null)
+                        .forEach(cache1::add);
 
-
-    @Override
-    public void loadTopCommentsNews() {
-        log("Presenter To Comments");
-        List<TopNewsModel> cache = mRealm.where(TopNewsModel.class).findAll();
-        if (!cache.isEmpty()) {
-            log("Top Comments Size " + cache.size());
-            newsView.showTopCommentsNews(cache);
-        } else {
-            log("loadTopCommentsNews NULL");
-
+                TopNewsModel model = RealmMapping.getTopModel(cache1);
+                newsView.updateTopCommentsNews(model);
+                mRealm.executeTransaction(realm -> realm.insertOrUpdate(model));
+            } else {
+                List<TopNewsModel> cache1 = new ArrayList<>();
+                Stream.of(list).map(RealmMapping::mappingNewsToTop).forEach(cache1::add);
+                TopNewsModel model = RealmMapping.getTopModel(cache1);
+                newsView.showTopCommentsNews(null);
+                newsView.updateTopCommentsNews(model);
+                mRealm.executeTransaction(realm -> realm.insertOrUpdate(model));
+            }
         }
     }
+
 
     /**
      * Основной метод обноления списка и бд.
@@ -111,22 +112,6 @@ public class NewsPresenter implements INewsPresenter {
     @Override
     public void updateData(@NonNull String category, boolean background) {
         log(TAG + " updateNewsListData -> " + " category -> " + category);
-//        if (background) {
-//            newsView.showBackgroundWorkProgress(true);
-//        }
-//        disposable.add(mNewsRepository.updateNewsListData(category)
-//                .subscribe(newsCallbackModel -> {
-//                    log(TAG + " updateData " + newsCallbackModel.cache.size());
-//                    if (background) { newsView.showBackgroundWorkProgress(false);}
-//                    else { newsView.showUpdateProgress(false);}
-//                    newsView.updateDataList(newsCallbackModel);
-//                }, throwable -> {
-//                    log(TAG + " updateData Error ->> " + throwable.toString());
-//                    if (background) { newsView.showBackgroundWorkProgress(false);}
-//                    else { newsView.showUpdateProgress(false);}
-//                    newsView.showErrorView(throwable, ERROR_UPDATE_DATA);
-//                }));
-
         newsView.showUpdateProgress(true);
         disposable.add(Api.NewsList().getNewsListFromNetwork1(category, 0)
                 .subscribeOn(Schedulers.io())
@@ -137,8 +122,9 @@ public class NewsPresenter implements INewsPresenter {
                     int size = cache.size();
                     if (size > 0) {
                         newsView.showUpdateProgress(false);
-                        newsView.updateDataList(cache);
                         newsView.showPopUp(size + " новых новостей");
+                        newsView.updateDataList(cache);
+                        showTopComments(list);
                         mRealm.executeTransaction(realm -> realm.insertOrUpdate(cache));
                     } else {
                         newsView.showPopUp("Нет новых новостей");
@@ -185,14 +171,11 @@ public class NewsPresenter implements INewsPresenter {
      */
     @Override
     public void loadMore(@NonNull String category, int pageNumber) {
-//        disposable.add(mNewsRepository.loadMoreNewsItems(category, pageNumber)
-//                .subscribe(list -> newsView.showLoadMore(list),
-//                        new Consumer<Throwable>() {
-//                    @Override
-//                    public void accept(Throwable throwable) throws Exception {
-//
-//                    }
-//                }));
+        disposable.add(Api.NewsList().getNewsListFromNetwork1(category, pageNumber)
+                .subscribeOn(Schedulers.io())
+                .map(RealmMapping::getMappingUpdateNewsList)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(list -> newsView.showLoadMore(list), throwable -> newsView.showErrorLoadMore()));
     }
 
 

@@ -14,7 +14,6 @@ public interface INewsPresenter {
     void unbindView();
 
     void loadData(String category);
-    void loadTopCommentsNews();
     void updateData(@NonNull String category, boolean background);
     void reInstance(@NonNull String category, int size);
     void loadMoreNewItems(@NonNull String category, int pageNumber, String lastUrl);

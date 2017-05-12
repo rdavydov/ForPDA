@@ -30,17 +30,12 @@ public class NDAdapter extends RecyclerBindableAdapter<NewsCommentModel, Recycle
 
     @Override
     protected RecyclerView.ViewHolder viewHolder(View view, int type) {
-//        if (type == IMG_BLOCK) {
-//            return new DNIViewHolder(view);
-//        } else if (type == WEB_BLOCK) {
-//            return new DNWViewHolder(view);
-//        }
+
         return new NDCViewHolder(view);
     }
 
     @Override
     protected int getItemType(int position) {
-
         return super.getItemType(position);
     }
 }

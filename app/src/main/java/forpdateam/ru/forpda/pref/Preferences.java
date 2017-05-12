@@ -16,5 +16,13 @@ public class Preferences {
         public static boolean getCompatItem() {
             return App.getInstance().getPreferences().getBoolean("news.list.compat", false);
         }
+
+        public static void enableTopCommentsNews(boolean enable) {
+            App.getInstance().getPreferences().edit().putBoolean("news.list.top", enable).apply();
+        }
+
+        public static boolean getShowTopCommentsNew() {
+            return App.getInstance().getPreferences().getBoolean("news.list.top", true);
+        }
     }
 }
