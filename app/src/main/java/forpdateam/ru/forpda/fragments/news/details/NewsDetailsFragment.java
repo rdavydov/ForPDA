@@ -92,7 +92,7 @@ public class NewsDetailsFragment extends TabFragment implements NDView {
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         CollapsingToolbarLayout collapsingToolbar =
                 (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-        collapsingToolbar.setTitle(title);
+        collapsingToolbar.setTitleEnabled(false);
         mRView = (RecyclerView) findViewById(R.id.recycler_view);
         root = (LinearLayout) findViewById(R.id.web_container);
         webView = (WebView) findViewById(R.id.nd_content_webview);

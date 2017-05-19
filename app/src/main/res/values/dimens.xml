@@ -26,6 +26,6 @@
 
     <!--News-->
     <dimen name="news_text_size">16sp</dimen>
-    <dimen name="news_second_text_size">12sp</dimen>
+    <dimen name="news_second_text_size">14sp</dimen>
     <dimen name="detail_backdrop_height">256dp</dimen>
 </resources>

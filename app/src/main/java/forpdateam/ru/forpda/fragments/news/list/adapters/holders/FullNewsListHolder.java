@@ -56,7 +56,7 @@ public class FullNewsListHolder extends RecyclerView.ViewHolder {
             return true;
         });
 
-        pic.setLabelVisual(item.newNews);
+        pic.setLabelVisual(false);
         pic.setLabelTextColor(Color.parseColor("#212121"));
         ImageSize size = new ImageSize(100, 100);
         ImageLoader.getInstance().displayImage("http:"+item.imgLink, pic, size);

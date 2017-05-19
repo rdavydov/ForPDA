@@ -16,6 +16,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.annimon.stream.Stream;
+import com.annimon.stream.function.Consumer;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,7 +73,6 @@ public class NewsListFragment extends TabFragment implements INewsView {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         baseInflateFragment(inflater, R.layout.news_list_fragment);
-//        text = (TextView) findViewById(R.id.textView2);
         log("Create View");
         srProgress = findViewById(R.id.news_list_progress);
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.news_refresh_layout);
@@ -91,61 +93,23 @@ public class NewsListFragment extends TabFragment implements INewsView {
         viewsReady();
     }
 
-    private void setupRecyclerView(Bundle savedInstanceState) {
-        manager = new LinearLayoutManager(getContext());
-        recyclerView.setLayoutManager(manager);
-        recyclerView.setItemViewCacheSize(30);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        adapter = new NewsListAdapter();
-
-        recyclerView.setAdapter(adapter);
-        if (savedInstanceState != null) {
-            log("savedInstanceState true");
-//            recyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("scrollPosition"));
-//            presenter.reInstance(Constants.NEWS_CATEGORY_ALL, adapter.getItemCount());
-        }
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                int totalItemCount = manager.getItemCount();
-                int lastVisibleItem = manager.findLastVisibleItemPosition();
-                if (!mIsLoading && totalItemCount <= (lastVisibleItem + VISIBLE_THRESHOLD)) {
-                    mIsLoading = true;
-                    pageSize++;
-                    presenter.loadMore(Constants.NEWS_CATEGORY_ALL, pageSize);
-                    log("Load More");
-                }
-            }
-        });
-
-        adapter.setActionListener(new NewsListClickListener() {
-            @Override
-            public void click(View view, int position) {
-                log("CLICK");
-                NewsModel model = adapter.getItem(position);
-                Bundle args = new Bundle();
-                args.putString(NewsDetailsFragment.TITLE, model.title);
-                args.putString(NewsDetailsFragment.IMG_URL, model.imgLink);
-                args.putString(NewsDetailsFragment.NEWS_URL, model.link);
-                TabManager.getInstance().add(new TabFragment.Builder<>(NewsDetailsFragment.class).setArgs(args).build());
-            }
-
-            @Override
-            public void longClick(int position) {
-                log("LONG CLICK");
-            }
-        });
-    }
-
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         log("save instance");
         outState.putParcelable("scrollPosition", recyclerView.getLayoutManager().onSaveInstanceState());
+    }
+
+    @Override
+    public void onPause() {
+        presenter.unbindView();
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        presenter.unbindView();
+        super.onDestroy();
     }
 
     @Override
@@ -156,15 +120,24 @@ public class NewsListFragment extends TabFragment implements INewsView {
     @Override
     public void showData(List<NewsModel> list) {
         msg("showData size " + list.size() + " <<");
+        srProgress.setVisibility(View.GONE);
         refreshLayout.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.VISIBLE);
         adapter.addAll(list);
+
+        Stream.of(list).forEach(new Consumer<NewsModel>() {
+            @Override
+            public void accept(NewsModel model) {
+                log("T " + model.title + " N " + model.newNews);
+            }
+        });
     }
 
     @Override
     public void showTopCommentsNews(List<TopNewsModel> list) {
-        msg("showTopCommentsNews -->> " + list.size());
-        adapter.addHeader(inflateHeaderFooter(list));
+        if (adapter.getHeadersCount() == 0) {
+            adapter.addHeader(inflateHeaderFooter(list));
+        }
     }
 
     @Override
@@ -181,9 +154,20 @@ public class NewsListFragment extends TabFragment implements INewsView {
     }
 
     @Override
+    public void updateLoadMore(List<NewsModel> list) {
+        if (list == null) {
+            // show progress
+        } else if (list.size() > 0){
+            // remove progress
+            adapter.addAll(list.size() + 1, list);
+        }
+    }
+
+    @Override
     public void showLoadMore(List<NewsModel> list) {
         log("showLoadMore");
-        adapter.addAll(adapter.getItemCount() + 1, list);
+        adapter.removeChild(adapter.getRealItemCount() - 1);
+        adapter.addAll(adapter.getRealItemCount() - 1, list);
     }
 
     @Override
@@ -212,6 +196,61 @@ public class NewsListFragment extends TabFragment implements INewsView {
         Toast.makeText(getActivity(), viewCode, Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void showToast(@NonNull String message) {
+        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void setupRecyclerView(Bundle savedInstanceState) {
+        manager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(manager);
+        recyclerView.setItemViewCacheSize(30);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        adapter = new NewsListAdapter();
+
+        recyclerView.setAdapter(adapter);
+        if (savedInstanceState != null) {
+            log("savedInstanceState true");
+//            recyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("scrollPosition"));
+//            presenter.reInstance(Constants.NEWS_CATEGORY_ALL, adapter.getItemCount());
+        }
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int totalItemCount = manager.getItemCount();
+                int lastVisibleItem = manager.findLastVisibleItemPosition();
+                if (!mIsLoading && totalItemCount <= (lastVisibleItem + VISIBLE_THRESHOLD)) {
+                    mIsLoading = true;
+                    pageSize++;
+                    adapter.add(adapter.getRealItemCount() - 1, null);
+                    presenter.loadMore(Constants.NEWS_CATEGORY_ALL, pageSize);
+                    log("Load More");
+                }
+            }
+        });
+
+        adapter.setActionListener(new NewsListClickListener() {
+            @Override
+            public void click(View view, int position) {
+                log("CLICK");
+                NewsModel model = adapter.getItem(position);
+                Bundle args = new Bundle();
+                args.putString(NewsDetailsFragment.TITLE, model.title);
+                args.putString(NewsDetailsFragment.IMG_URL, model.imgLink);
+                args.putString(NewsDetailsFragment.NEWS_URL, model.link);
+                TabManager.getInstance().add(new TabFragment.Builder<>(NewsDetailsFragment.class).setArgs(args).build());
+            }
+
+            @Override
+            public void longClick(int position) {
+                log("LONG CLICK");
+            }
+        });
+    }
+
     private View inflateHeaderFooter(List<TopNewsModel> list) {
         msg("inflateHeaderFooter here");
         LinearLayout header = (LinearLayout) getActivity().getLayoutInflater().inflate(R.layout.news_list_item_header, recyclerView, false);
@@ -219,11 +258,8 @@ public class NewsListFragment extends TabFragment implements INewsView {
         topList.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         topList.setHasFixedSize(true);
         topAdapter = new NewsListTopAdapter();
-        if (list != null) {
-            topAdapter.addAll(list);
-        }
+        if (list != null) { topAdapter.addAll(list); }
         topList.setAdapter(topAdapter);
-        msg("Adapter top size " + list.size());
         msg("Top adapter size " + topAdapter.getItemCount());
         return header;
     }

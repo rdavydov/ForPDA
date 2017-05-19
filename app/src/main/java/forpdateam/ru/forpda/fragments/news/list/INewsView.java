@@ -17,10 +17,12 @@ public interface INewsView {
     void showTopCommentsNews(List<TopNewsModel> list);
     void updateTopCommentsNews(TopNewsModel model);
     void updateDataList(List<NewsModel> list);
+    void updateLoadMore(List<NewsModel> list);
     void showLoadMore(List<NewsModel> list);
     void showErrorLoadMore();
     void showUpdateProgress(boolean show);
     void showBackgroundWorkProgress(boolean show);
     void showErrorView(Throwable throwable, @NonNull String codeError);
     void showPopUp(@NonNull String viewCode);
+    void showToast(@NonNull String message);
 }

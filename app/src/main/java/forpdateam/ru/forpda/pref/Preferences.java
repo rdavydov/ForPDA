@@ -24,5 +24,13 @@ public class Preferences {
         public static boolean getShowTopCommentsNew() {
             return App.getInstance().getPreferences().getBoolean("news.list.top", true);
         }
+
+        public static void setTimeUpdateTopList(String category, long time) {
+            App.getInstance().getPreferences().edit().putLong("news.top.list." + category, time).apply();
+        }
+
+        public static long getListTimeUpdateTop(String category) {
+            return App.getInstance().getPreferences().getLong("news.top.list." + category, 0L);
+        }
     }
 }

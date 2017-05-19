@@ -10,7 +10,7 @@ import io.realm.annotations.PrimaryKey;
 
 public class NewsModel extends RealmObject {
     public static final String CATEGORY = "category";
-    public static final long TIME_TO_DIE = 129600000; // 3 дня
+    public static final long TIME_TO_DIE = 259200000; // 3 day's
 
     @PrimaryKey
     public String link;

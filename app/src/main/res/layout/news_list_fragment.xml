@@ -25,8 +25,8 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:id="@+id/news_list_progress"
-        android:visibility="gone"/>
+        android:indeterminate="true"
+        android:id="@+id/news_list_progress"/>
 
     <ImageView
         android:id="@+id/news_list_no_network"

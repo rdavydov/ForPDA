@@ -26,6 +26,7 @@ public class RealmMapping {
         newsModel.description = item.description;
         newsModel.title = item.title;
         newsModel.category = item.category;
+        newsModel.newNews = false;
         return newsModel;
     }
 
@@ -68,6 +69,8 @@ public class RealmMapping {
         model.imgUrl = news.imgLink;
         model.title = news.title;
         model.commentsCount = news.commentsCount;
+        model.category = news.category;
+        model.timeDia = System.currentTimeMillis();
         return model;
     }
 }
