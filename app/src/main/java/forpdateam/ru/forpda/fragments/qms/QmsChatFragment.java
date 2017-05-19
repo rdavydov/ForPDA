@@ -1,27 +1,43 @@
 package forpdateam.ru.forpda.fragments.qms;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.webkit.WebViewFragment;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import biz.source_code.miniTemplator.MiniTemplator;
 import forpdateam.ru.forpda.App;
 import forpdateam.ru.forpda.R;
 import forpdateam.ru.forpda.api.RequestFile;
@@ -29,11 +45,13 @@ import forpdateam.ru.forpda.api.qms.models.QmsChatModel;
 import forpdateam.ru.forpda.api.qms.models.QmsMessage;
 import forpdateam.ru.forpda.api.theme.editpost.models.AttachmentItem;
 import forpdateam.ru.forpda.fragments.TabFragment;
-import forpdateam.ru.forpda.fragments.qms.adapters.QmsChatAdapter;
 import forpdateam.ru.forpda.rxapi.RxApi;
+import forpdateam.ru.forpda.rxapi.apiclasses.QmsRx;
+import forpdateam.ru.forpda.utils.ExtendedWebView;
 import forpdateam.ru.forpda.utils.FilePickHelper;
 import forpdateam.ru.forpda.utils.IntentHandler;
 import forpdateam.ru.forpda.utils.SimpleTextWatcher;
+import forpdateam.ru.forpda.utils.Utils;
 import forpdateam.ru.forpda.utils.rx.Subscriber;
 import forpdateam.ru.forpda.views.messagepanel.MessagePanel;
 import forpdateam.ru.forpda.views.messagepanel.attachments.AttachmentsPopup;
@@ -42,6 +60,7 @@ import forpdateam.ru.forpda.views.messagepanel.attachments.AttachmentsPopup;
  * Created by radiationx on 25.08.16.
  */
 public class QmsChatFragment extends TabFragment {
+    private final static String JS_INTERFACE = "IChat";
     public final static String USER_ID_ARG = "USER_ID_ARG";
     public final static String USER_NICK_ARG = "USER_NICK_ARG";
     public final static String USER_AVATAR_ARG = "USER_AVATAR_ARG";
@@ -50,19 +69,31 @@ public class QmsChatFragment extends TabFragment {
 
     private int userId = -1, themeId = -1;
     private String avatarUrl, userNick, themeTitle;
-    private RecyclerView recyclerView;
+    private ExtendedWebView webView;
+    private FrameLayout chatContainer;
     private MessagePanel messagePanel;
     private AttachmentsPopup attachmentsPopup;
-
-    private QmsChatAdapter.OnItemClickListener onItemClickListener = message -> {
-        Toast.makeText(getContext(), "ONCLICK " + message.getId(), Toast.LENGTH_SHORT).show();
-    };
-    private QmsChatAdapter.OnLongItemClickListener onLongItemClickListener = message -> {
-        Toast.makeText(getContext(), "ON LONG CLICK " + message.getId(), Toast.LENGTH_SHORT).show();
-    };
+    private ViewStub viewStub;
+    private AppCompatAutoCompleteTextView nickField;
+    private AppCompatEditText titleField;
+    private MenuItem doneItem, editItem;
+    private Subscriber<List<String>> searchUserSubscriber = new Subscriber<>(this);
 
     private Subscriber<QmsChatModel> mainSubscriber = new Subscriber<>(this);
     private Subscriber<QmsMessage> messageSubscriber = new Subscriber<>(this);
+
+    private TextWatcher textWatcher = new SimpleTextWatcher() {
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            if ((userId != 0 || userNick.length() > 0) && titleField.getText().length() > 0) {
+                doneItem.setVisible(true);
+            } else {
+                doneItem.setVisible(false);
+            }
+        }
+    };
+    private QmsChatModel currentChat;
+    private Timer messageChecker = new Timer();
 
     public QmsChatFragment() {
         configuration.setDefaultTitle("Чат");
@@ -80,23 +111,36 @@ public class QmsChatFragment extends TabFragment {
         }
     }
 
-    private ViewStub viewStub;
-    private AppCompatAutoCompleteTextView nickField;
-    private AppCompatEditText titleField;
-
+    @SuppressLint({"SetJavaScriptEnabled", "JavascriptInterface"})
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         baseInflateFragment(inflater, R.layout.fragment_qms_chat);
+        chatContainer = (FrameLayout) findViewById(R.id.qms_chat_container);
         viewStub = (ViewStub) findViewById(R.id.toolbar_content);
         viewStub.setLayoutResource(R.layout.toolbar_qms_new_theme);
         viewStub.inflate();
         nickField = (AppCompatAutoCompleteTextView) findViewById(R.id.qms_theme_nick_field);
         titleField = (AppCompatEditText) findViewById(R.id.qms_theme_title_field);
-        recyclerView = (RecyclerView) findViewById(R.id.qms_chat);
         messagePanel = new MessagePanel(getContext(), fragmentContainer, coordinatorLayout, false);
-        messagePanel.setHeightChangeListener(newHeight -> recyclerView.setPadding(0, 0, 0, newHeight));
+        messagePanel.setHeightChangeListener(newHeight -> webView.evalJs("setPaddingBottom(" + (newHeight / getResources().getDisplayMetrics().density) + ");"));
+        if (getMainActivity().getWebViews().size() > 0) {
+            webView = getMainActivity().getWebViews().element();
+            getMainActivity().getWebViews().remove();
+        } else {
+            webView = new ExtendedWebView(getContext());
+            webView.setTag("WebView_tag ".concat(Long.toString(System.currentTimeMillis())));
+        }
+
+        chatContainer.addView(webView);
+        webView.addJavascriptInterface(this, JS_INTERFACE);
+        webView.getSettings().setJavaScriptEnabled(true);
+        registerForContextMenu(webView);
+        webView.setWebViewClient(new QmsWebViewClient());
+        webView.setWebChromeClient(new QmsChromeClient());
+        loadBaseWeb();
+
         attachmentsPopup = messagePanel.getAttachmentsPopup();
         attachmentsPopup.setAddOnClickListener(v -> pickImage());
         attachmentsPopup.setDeleteOnClickListener(v -> {
@@ -120,10 +164,7 @@ public class QmsChatFragment extends TabFragment {
 
         viewsReady();
         tryShowAvatar();
-        recyclerView.setHasFixedSize(true);
-        LinearLayoutManager llm = new LinearLayoutManager(getContext());
-        llm.setOrientation(LinearLayoutManager.VERTICAL);
-        recyclerView.setLayoutManager(llm);
+        messageChecker.schedule(new MessagesChecker(), 0, 60000);
 
         if (userNick != null) {
             setSubtitle(userNick);
@@ -131,6 +172,87 @@ public class QmsChatFragment extends TabFragment {
         if (themeTitle != null) {
             setTitle(themeTitle);
         }
+        initCreatorViews();
+        return view;
+    }
+
+    private void loadBaseWeb() {
+        MiniTemplator t = App.getInstance().getTemplate(App.TEMPLATE_QMS_CHAT);
+
+        /*t.setVariableOpt("chat_title", forpdateam.ru.forpda.api.Utils.htmlEncode(chatModel.getTitle()));
+        t.setVariableOpt("chatId", chatModel.getThemeId());
+        t.setVariableOpt("userId", chatModel.getUserId());
+        t.setVariableOpt("nick", chatModel.getNick());
+        t.setVariableOpt("avatarUrl", chatModel.getAvatarUrl());*/
+
+        t.setVariableOpt("body_type", "qms");
+        t.setVariableOpt("messages", "");
+        t.reset();
+        String html = t.generateOutput();
+        //Log.e("FORPDA_LOG", "GENERATED " + html);
+        webView.loadDataWithBaseURL("http://4pda.ru/forum/", html, "text/html", "utf-8", null);
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        return messagePanel.onBackPressed();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        messagePanel.onResume();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        messagePanel.onDestroy();
+        messageChecker.cancel();
+        messageChecker.purge();
+
+        unregisterForContextMenu(webView);
+        webView.setActionModeListener(null);
+        webView.removeJavascriptInterface(JS_INTERFACE);
+        webView.setWebChromeClient(null);
+        webView.setWebViewClient(null);
+        webView.loadUrl("about:blank");
+        webView.clearHistory();
+        webView.clearSslPreferences();
+        webView.clearDisappearingChildren();
+        webView.clearFocus();
+        webView.clearFormData();
+        webView.clearMatches();
+        ((ViewGroup) webView.getParent()).removeAllViews();
+        if (getMainActivity().getWebViews().size() < 10) {
+            getMainActivity().getWebViews().add(webView);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        messagePanel.onPause();
+    }
+
+    @Override
+    public void hidePopupWindows() {
+        super.hidePopupWindows();
+        messagePanel.hidePopupWindows();
+    }
+
+    /* NEW THEME CREATOR */
+
+
+    private void searchUser(String nick) {
+        searchUserSubscriber.subscribe(RxApi.Qms().findUser(nick), this::onShowSearchRes, new ArrayList());
+    }
+
+    private void onShowSearchRes(List<String> res) {
+        nickField.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, res));
+    }
+
+    private void initCreatorViews() {
         titleField.addTextChangedListener(textWatcher);
         nickField.addTextChangedListener(textWatcher);
         editItem = toolbar.getMenu().add("Изменить").setIcon(App.getAppDrawable(R.drawable.ic_create_gray_24dp)).setOnMenuItemClickListener(menuItem -> {
@@ -172,20 +294,7 @@ public class QmsChatFragment extends TabFragment {
                 }
             });
         }
-
-        return view;
     }
-
-    private TextWatcher textWatcher = new SimpleTextWatcher() {
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            if ((userId != 0 || userNick.length() > 0) && titleField.getText().length() > 0) {
-                doneItem.setVisible(true);
-            } else {
-                doneItem.setVisible(false);
-            }
-        }
-    };
 
     private void sendNewTheme() {
         if (userNick == null || userNick.isEmpty()) {
@@ -199,17 +308,6 @@ public class QmsChatFragment extends TabFragment {
         }
     }
 
-    private void sendMessage() {
-        messagePanel.setProgressState(true);
-        messageSubscriber.subscribe(RxApi.Qms().sendMessage(userId, themeId, messagePanel.getMessage()), qmsMessage -> {
-            messagePanel.setProgressState(false);
-            if (qmsMessage.getContent() != null) {
-                adapter.addMessage(qmsMessage);
-                messagePanel.clearMessage();
-                messagePanel.clearAttachments();
-            }
-        }, new QmsMessage());
-    }
 
     private void onNewThemeCreate(QmsChatModel chat) {
         viewStub.setVisibility(View.GONE);
@@ -220,46 +318,129 @@ public class QmsChatFragment extends TabFragment {
         onLoadChat(chat);
     }
 
-    private MenuItem doneItem, editItem;
-    private Subscriber<String[]> searchUserSubscriber = new Subscriber<>(this);
+    /* CHAT */
+    private boolean baseWebComplete = false;
+    private String messagesSrc = null;
 
-    private void searchUser(String nick) {
-        searchUserSubscriber.subscribe(RxApi.Qms().findUser(nick), this::onShowSearchRes, new String[]{});
+    private class QmsWebViewClient extends WebViewClient {
+
+        @SuppressWarnings("deprecation")
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            return handleUri(Uri.parse(url));
+        }
+
+        @TargetApi(Build.VERSION_CODES.N)
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+            return handleUri(request.getUrl());
+        }
+
+        private boolean handleUri(Uri uri) {
+            IntentHandler.handle(uri.toString());
+            return true;
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            super.onPageFinished(view, url);
+        }
     }
 
-    private void onShowSearchRes(String[] res) {
-        nickField.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, res));
+    private class QmsChromeClient extends WebChromeClient {
+        @Override
+        public void onProgressChanged(WebView view, int newProgress) {
+            super.onProgressChanged(view, newProgress);
+            Log.e("FORPDA_LOG", "progress " + newProgress);
+            if (newProgress == 100) {
+                if (!baseWebComplete && messagesSrc != null) {
+                    Log.e("FORPDA_LOG", "SHOW NEW MESS CLIENT");
+                    webView.evalJs("showNewMess('".concat(messagesSrc).concat("', true)"));
+                    messagesSrc = null;
+                }
+                baseWebComplete = true;
+            }
+        }
     }
-
 
     @Override
-    public boolean onBackPressed() {
-        return messagePanel.onBackPressed();
+    public void loadData() {
+        if (userId != -1 && themeId != -1) {
+            mainSubscriber.subscribe(RxApi.Qms().getChat(userId, themeId), this::onLoadChat, new QmsChatModel(), v -> loadData());
+        }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        messagePanel.onResume();
+    private void onLoadChat(QmsChatModel chat) {
+        themeId = chat.getThemeId();
+        themeTitle = chat.getTitle();
+        userId = chat.getUserId();
+        userNick = chat.getNick();
+        long time = System.currentTimeMillis();
+        String messagesSrc = null;
+        if (currentChat == null) {
+            currentChat = chat;
+            MiniTemplator t = App.getInstance().getTemplate(App.TEMPLATE_QMS_CHAT_MESS);
+            int end = currentChat.getChatItemsList().size();
+            int start = Math.max(end - 30, 0);
+            currentChat.setShowedMessIndex(start);
+            QmsRx.generateMess(t, currentChat.getChatItemsList(), start, end);
+            messagesSrc = t.generateOutput();
+            t.reset();
+        } else {
+            int start = currentChat.getChatItemsList().size();
+            int end = chat.getChatItemsList().size();
+            if (start < end) {
+                MiniTemplator t = App.getInstance().getTemplate(App.TEMPLATE_QMS_CHAT_MESS);
+                List<QmsMessage> newMessages = new ArrayList<>();
+                for (int i = start; i < end; i++) {
+                    QmsMessage message = chat.getChatItemsList().get(i);
+                    newMessages.add(message);
+                    currentChat.getChatItemsList().add(message);
+                }
+                QmsRx.generateMess(t, newMessages);
+                messagesSrc = t.generateOutput();
+                t.reset();
+            }
+        }
+        if (messagesSrc != null) {
+            messagesSrc = messagesSrc.replaceAll("\n", "").replaceAll("'", "&apos;");
+            Log.e("FORPDA_LOG", "TIME " + (System.currentTimeMillis() - time));
+            Log.e("FORPDA_LOG", "NEW MESS FINAL");
+            /*final String veryLongString = messagesSrc;
+            int maxLogSize = 1000;
+            for (int i = 0; i <= veryLongString.length() / maxLogSize; i++) {
+                int start = i * maxLogSize;
+                int end = (i + 1) * maxLogSize;
+                end = end > veryLongString.length() ? veryLongString.length() : end;
+                Log.e("FORPDA_LOG", veryLongString.substring(start, end));
+            }*/
+            if (baseWebComplete) {
+                Log.e("FORPDA_LOG", "SHOW NEW MESS");
+                webView.evalJs("showNewMess('".concat(messagesSrc).concat("', true)"));
+            } else {
+                QmsChatFragment.this.messagesSrc = messagesSrc;
+            }
+        }
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        messagePanel.onDestroy();
+
+    private void sendMessage() {
+        messagePanel.setProgressState(true);
+        messageSubscriber.subscribe(RxApi.Qms().sendMessage(userId, themeId, messagePanel.getMessage()), qmsMessage -> {
+            messagePanel.setProgressState(false);
+            if (qmsMessage.getContent() != null) {
+                MiniTemplator t = App.getInstance().getTemplate(App.TEMPLATE_QMS_CHAT_MESS);
+                String messSrc = QmsRx.generateMess(t, qmsMessage).generateOutput();
+                messSrc = messSrc.replaceAll("\n", "");
+                t.reset();
+                webView.evalJs("showNewMess('" + messSrc + "', true)");
+
+                messagePanel.clearMessage();
+                messagePanel.clearAttachments();
+            }
+        }, new QmsMessage());
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        messagePanel.onPause();
-    }
-
-    @Override
-    public void hidePopupWindows() {
-        super.hidePopupWindows();
-        messagePanel.hidePopupWindows();
-    }
 
     private void tryShowAvatar() {
         if (avatarUrl != null && userId != -1) {
@@ -271,38 +452,38 @@ public class QmsChatFragment extends TabFragment {
         }
     }
 
-    @Override
-    public void loadData() {
-        if (userId != -1 && themeId != -1) {
-            mainSubscriber.subscribe(RxApi.Qms().getChat(userId, themeId), this::onLoadChat, new QmsChatModel(), v -> loadData());
+    private class MessagesChecker extends TimerTask {
+        public void run() {
+            if (isVisible()) {
+                loadData();
+            }
         }
     }
 
-    private QmsChatAdapter adapter;
-
-    private void onLoadChat(QmsChatModel chat) {
-        themeId = chat.getThemeId();
-        themeTitle = chat.getTitle();
-        userId = chat.getUserId();
-        userNick = chat.getNick();
-        adapter = new QmsChatAdapter(chat.getChatItemsList(), getContext());
-        adapter.setOnItemClickListener(onItemClickListener);
-        adapter.setOnLongItemClickListener(onLongItemClickListener);
-        recyclerView.setAdapter(adapter);
-        if (chat.getTitle().contains(chat.getNick())) {
-            setTabTitle("Диалог: ".concat(chat.getTitle()));
-        } else {
-            setTabTitle("Диалог c ".concat(chat.getNick()).concat(": ").concat(chat.getTitle()));
-        }
-        setTitle(chat.getTitle());
-        setSubtitle(chat.getNick());
-        if (avatarUrl == null) {
-            avatarUrl = chat.getAvatarUrl();
-            tryShowAvatar();
-            //TabManager.getInstance().remove(getParentTag());
-        }
-        recyclerView.scrollToPosition(adapter.getItemCount() - 1);
+    @JavascriptInterface
+    public void showMoreMess() {
+        run(new Runnable() {
+            @Override
+            public void run() {
+                MiniTemplator t = App.getInstance().getTemplate(App.TEMPLATE_QMS_CHAT_MESS);
+                int endIndex = currentChat.getShowedMessIndex();
+                int startIndex = Math.max(endIndex - 30, 0);
+                currentChat.setShowedMessIndex(startIndex);
+                QmsRx.generateMess(t, currentChat.getChatItemsList(), startIndex, endIndex);
+                String messagesSrc = t.generateOutput();
+                messagesSrc = messagesSrc.replaceAll("\n", "");
+                t.reset();
+                webView.evalJs("showMoreMess('" + messagesSrc + "')");
+            }
+        });
     }
+
+    public void run(final Runnable runnable) {
+        getMainActivity().runOnUiThread(runnable);
+    }
+
+    /* ATTACHMENTS LOADER */
+
 
     private Subscriber<List<AttachmentItem>> attachmentSubscriber = new Subscriber<>(this);
 
@@ -328,4 +509,6 @@ public class QmsChatFragment extends TabFragment {
     public void pickImage() {
         startActivityForResult(FilePickHelper.pickImage(PICK_IMAGE), PICK_IMAGE);
     }
+
+
 }

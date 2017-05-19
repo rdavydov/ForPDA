@@ -65,6 +65,8 @@ import static org.acra.ReportField.STACK_TRACE;
 public class App extends android.app.Application {
     public final static String TEMPLATE_THEME = "theme";
     public final static String TEMPLATE_SEARCH = "search";
+    public final static String TEMPLATE_QMS_CHAT = "qms_chat";
+    public final static String TEMPLATE_QMS_CHAT_MESS = "qms_chat_mess";
     private static App INSTANCE = new App();
     private SharedPreferences preferences;
     private static int savedKeyboardHeight = 0;
@@ -147,6 +149,8 @@ public class App extends android.app.Application {
 
         templates.put(TEMPLATE_THEME, findTemplate(TEMPLATE_THEME));
         templates.put(TEMPLATE_SEARCH, findTemplate(TEMPLATE_SEARCH));
+        templates.put(TEMPLATE_QMS_CHAT, findTemplate(TEMPLATE_QMS_CHAT));
+        templates.put(TEMPLATE_QMS_CHAT_MESS, findTemplate(TEMPLATE_QMS_CHAT_MESS));
 
         //init
         Realm.init(this);

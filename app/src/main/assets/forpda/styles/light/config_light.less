@@ -1,0 +1,69 @@
+/*---
+Name: Coba
+Type: Lignt
+Color: Blue[#03a9f4]
+Version: 1.2
+Author: RadiationX|Radiation15
+Edited by: RadiationX|*or you nick*
+---*/
+
+/*Curves*/
+@curveStandard: cubic-bezier(0.4, 0.0, 0.2, 1);
+@curveEaseOut: cubic-bezier(0.0, 0.0, 0.2, 1);
+@curveEaseIn: cubic-bezier(0.4, 0.0, 1, 1);
+@curveSharp: cubic-bezier(0.4, 0.0, 0.6, 1);
+
+/*Fonts*/
+@font: "Roboto", sans-serif;
+@fontMono: "Roboto Mono", monospace;
+
+/*Color scheme*/
+@primaryColor: #fff;
+@primaryDarkColor: #aaa;
+@accentColor: #000;
+@textColor: fade(#000, 87%);
+@secondTextColor: fade(#000, 54%);
+@linkColor: #2177af;
+@tapColor: fade(#000, 5%);
+@background: #fafafa;
+@darkBackground: #eee;
+
+/*Elements colors*/
+@cardBg: @primaryColor;
+@border1: 1/16rem solid fade(#000, 5%); //Основной бордер
+@borderInput: 2/16rem solid fade(#000, 54%); //Основной бордер
+@userOnlineColor: #12b557; //Цвет ника онлайн
+
+/*Post blocks*/
+@postBlockBg: fade(#000, 5%);
+@childSpoilColor: fade(#000, 3%);
+@exColor: #e74c3c;
+@exColorBlock: fade(@exColor, 10%);
+@curColor: #12b557;
+@curColorBlock: fade(@curColor, 10%);
+@modColor: #2980b9;
+@modColorBlock: fade(@modColor, 10%);
+[style*="color:#ffffff"],
+[style*="color:white"] {
+    color: @textColor!important;
+}
+
+.mainBox {
+    background: @cardBg;
+    margin: 8/16em 0;
+    box-shadow: 0 0px 1px fade(#000, 24%);
+}
+
+.bRad(@param) {
+    -webkit-border-radius: @param;
+    border-radius: @param;
+}
+
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
