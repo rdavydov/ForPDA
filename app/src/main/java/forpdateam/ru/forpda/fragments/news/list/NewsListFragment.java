@@ -1,5 +1,6 @@
 package forpdateam.ru.forpda.fragments.news.list;
 
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,17 +10,21 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.annimon.stream.Stream;
 import com.annimon.stream.function.Consumer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import forpdateam.ru.forpda.R;
@@ -27,6 +32,7 @@ import forpdateam.ru.forpda.TabManager;
 import forpdateam.ru.forpda.api.news.Constants;
 import forpdateam.ru.forpda.fragments.TabFragment;
 import forpdateam.ru.forpda.fragments.news.callbacks.NewsListClickListener;
+import forpdateam.ru.forpda.fragments.news.callbacks.PaginationScrollListener;
 import forpdateam.ru.forpda.fragments.news.details.NewsDetailsFragment;
 import forpdateam.ru.forpda.fragments.news.list.adapters.NewsListTopAdapter;
 import forpdateam.ru.forpda.fragments.news.list.adapters.NewsListAdapter;
@@ -34,28 +40,29 @@ import forpdateam.ru.forpda.fragments.news.list.presenter.NewsPresenter;
 import forpdateam.ru.forpda.models.news.NewsModel;
 import forpdateam.ru.forpda.models.news.TopNewsModel;
 
-import static forpdateam.ru.forpda.utils.Utils.log;
+import static forpdateam.ru.forpda.utils.Logger.log;
+import static forpdateam.ru.forpda.utils.Logger.setTag;
 
 /**
  * Created by isanechek on 5/3/17.
  */
 
 public class NewsListFragment extends TabFragment implements INewsView {
-    private static final String TAG = "NewsListFragment";
-    private static final int VISIBLE_THRESHOLD = 5;
 
-    private TextView text;
     private SwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
-    private LinearLayoutManager manager;
     private View srProgress;
     private int pageSize = 1;
     private boolean mIsLoading;
     private NewsPresenter presenter;
     private NewsListAdapter adapter;
     private NewsListTopAdapter topAdapter;
+    private FrameLayout loadMoreContainer;
+    private ProgressBar loadMoreProgress;
+    private Button loadMoreErrorBtn;
 
     public NewsListFragment(){
+        setTag("NewsListFragment");
         configuration.setAlone(true);
         configuration.setUseCache(true);
         configuration.setDefaultTitle("Новости");
@@ -65,7 +72,6 @@ public class NewsListFragment extends TabFragment implements INewsView {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        log("Create News Fragment");
     }
 
     @Nullable
@@ -124,19 +130,12 @@ public class NewsListFragment extends TabFragment implements INewsView {
         refreshLayout.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.VISIBLE);
         adapter.addAll(list);
-
-        Stream.of(list).forEach(new Consumer<NewsModel>() {
-            @Override
-            public void accept(NewsModel model) {
-                log("T " + model.title + " N " + model.newNews);
-            }
-        });
     }
 
     @Override
     public void showTopCommentsNews(List<TopNewsModel> list) {
         if (adapter.getHeadersCount() == 0) {
-            adapter.addHeader(inflateHeaderFooter(list));
+            adapter.addHeader(inflateHeader(list));
         }
     }
 
@@ -155,23 +154,47 @@ public class NewsListFragment extends TabFragment implements INewsView {
 
     @Override
     public void updateLoadMore(List<NewsModel> list) {
-        if (list == null) {
-            // show progress
-        } else if (list.size() > 0){
-            // remove progress
-            adapter.addAll(list.size() + 1, list);
-        }
+//        // Тут короче надо делать вью. Пока пусть будет так.
+//        if (list == null) {
+//            // show progress
+//        } else if (list.size() > 0){
+//            // remove progress
+////            adapter.addAll(list.size() + 1, list);
+//        }
     }
 
     @Override
     public void showLoadMore(List<NewsModel> list) {
         log("showLoadMore");
-        adapter.removeChild(adapter.getRealItemCount() - 1);
-        adapter.addAll(adapter.getRealItemCount() - 1, list);
+        mIsLoading = false;
+        adapter.removeHeader(inflateLoadMoreFooter());
+        adapter.addAll(list);
+        if (loadMoreContainer != null) {
+            loadMoreContainer.removeAllViews();
+        }
+        Toast.makeText(getActivity(), "Страница " + pageSize, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void showErrorLoadMore() {
+        if (loadMoreContainer != null) {
+            if (loadMoreProgress != null) {
+                if (loadMoreProgress.getVisibility() == View.VISIBLE) {
+                    loadMoreProgress.setVisibility(View.GONE);
+                }
+            }
+
+            if (loadMoreErrorBtn.getVisibility() == View.GONE) {
+                loadMoreErrorBtn.setVisibility(View.VISIBLE);
+                loadMoreErrorBtn.setOnClickListener(v -> {
+                    if (pageSize != 1) {
+                        presenter.loadMore(Constants.NEWS_CATEGORY_ALL, pageSize);
+                        loadMoreErrorBtn.setVisibility(View.GONE);
+                        loadMoreProgress.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+        }
 
     }
 
@@ -202,7 +225,7 @@ public class NewsListFragment extends TabFragment implements INewsView {
     }
 
     private void setupRecyclerView(Bundle savedInstanceState) {
-        manager = new LinearLayoutManager(getContext());
+        LinearLayoutManager manager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(manager);
         recyclerView.setItemViewCacheSize(30);
         recyclerView.setHasFixedSize(true);
@@ -215,20 +238,31 @@ public class NewsListFragment extends TabFragment implements INewsView {
 //            recyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("scrollPosition"));
 //            presenter.reInstance(Constants.NEWS_CATEGORY_ALL, adapter.getItemCount());
         }
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+        recyclerView.addOnScrollListener(new PaginationScrollListener(manager) {
+            @Override
+            protected void loadMoreItems() {
+                mIsLoading = true;
+                pageSize++;
+                adapter.addFooter(inflateLoadMoreFooter());
+                presenter.loadMore(Constants.NEWS_CATEGORY_ALL, pageSize);
+            }
 
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                int totalItemCount = manager.getItemCount();
-                int lastVisibleItem = manager.findLastVisibleItemPosition();
-                if (!mIsLoading && totalItemCount <= (lastVisibleItem + VISIBLE_THRESHOLD)) {
-                    mIsLoading = true;
-                    pageSize++;
-                    adapter.add(adapter.getRealItemCount() - 1, null);
-                    presenter.loadMore(Constants.NEWS_CATEGORY_ALL, pageSize);
-                    log("Load More");
-                }
+            public boolean isLastPage() {
+                /*
+                *
+                *  Здесь короче надо будет спарсить номер последней страницы и сравнить с pageSize
+                *  Или можно чекать ошибку с клиента. Типа если страница не найдена, то все.
+                *  Это на случай если кто решит листать до победного.
+                *
+                * */
+                return false;
+            }
+
+            @Override
+            public boolean isLoading() {
+                return mIsLoading;
             }
         });
 
@@ -251,8 +285,8 @@ public class NewsListFragment extends TabFragment implements INewsView {
         });
     }
 
-    private View inflateHeaderFooter(List<TopNewsModel> list) {
-        msg("inflateHeaderFooter here");
+    private View inflateHeader(List<TopNewsModel> list) {
+        msg("inflateHeader here");
         LinearLayout header = (LinearLayout) getActivity().getLayoutInflater().inflate(R.layout.news_list_item_header, recyclerView, false);
         RecyclerView topList = (RecyclerView) header.findViewById(R.id.news_list_top_list);
         topList.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -262,6 +296,26 @@ public class NewsListFragment extends TabFragment implements INewsView {
         topList.setAdapter(topAdapter);
         msg("Top adapter size " + topAdapter.getItemCount());
         return header;
+    }
+
+    private View inflateLoadMoreFooter() {
+        loadMoreContainer = new FrameLayout(getActivity());
+        loadMoreContainer.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        loadMoreProgress = new ProgressBar(getActivity());
+        loadMoreProgress.setIndeterminate(true);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER);
+        loadMoreContainer.addView(loadMoreProgress, params);
+        loadMoreErrorBtn = new Button(getActivity());
+        loadMoreErrorBtn.setText("Ошибка! Повторить?");
+        int[] attrs = new int[]{R.attr.selectableItemBackground};
+        TypedArray typedArray = getContext().obtainStyledAttributes(attrs);
+        loadMoreErrorBtn.setBackgroundResource(typedArray.getResourceId(0, 0));
+        typedArray.recycle();
+        loadMoreErrorBtn.setVisibility(View.GONE);
+        loadMoreContainer.addView(loadMoreErrorBtn, params);
+        return loadMoreContainer;
     }
 
     private void msg(String s) {
