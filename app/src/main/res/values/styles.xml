@@ -96,4 +96,21 @@
         <item name="android:clickable">true</item>
         <item name="android:foreground">?android:attr/selectableItemBackground</item>
     </style>
+
+
+    <style name="ImageViewTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
+
+
+    <style name="ImageViewTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat">
+        <item name="android:singleLine">true</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="ImageViewTheme.PopupOverlay" parent="ThemeOverlay.AppCompat">
+        <item name="elevation">0dp</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
 </resources>

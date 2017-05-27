@@ -109,7 +109,7 @@ public class EditPostFragment extends TabFragment {
             }
         });
         attachmentsPopup = messagePanel.getAttachmentsPopup();
-        attachmentsPopup.setAddOnClickListener(v -> pickImage());
+        attachmentsPopup.setAddOnClickListener(v -> tryPickFile());
         attachmentsPopup.setDeleteOnClickListener(v -> removeFiles());
         viewsReady();
         Bundle args = getArguments();
@@ -258,20 +258,18 @@ public class EditPostFragment extends TabFragment {
     public void removeFiles() {
         attachmentsPopup.preDeleteFiles();
         List<AttachmentItem> selectedFiles = attachmentsPopup.getSelected();
-        attachmentSubscriber.subscribe(RxApi.EditPost().deleteFiles(postForm.getPostId(), selectedFiles), item -> attachmentsPopup.onDeleteFiles(item), selectedFiles, null);
+        attachmentSubscriber.subscribe(RxApi.EditPost().deleteFiles(postForm.getPostId(), selectedFiles), item -> attachmentsPopup.onDeleteFiles(selectedFiles), selectedFiles, null);
     }
 
-    private static final int PICK_IMAGE = 1228;
 
-    public void pickImage() {
-        startActivityForResult(FilePickHelper.pickImage(PICK_IMAGE), PICK_IMAGE);
+    public void tryPickFile() {
+        getMainActivity().checkStoragePermission(() -> startActivityForResult(FilePickHelper.pickImage(false), REQUEST_PICK_FILE));
     }
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK) {
+        if (requestCode == REQUEST_PICK_FILE && resultCode == Activity.RESULT_OK) {
             if (data == null) {
                 //Display an error
                 return;

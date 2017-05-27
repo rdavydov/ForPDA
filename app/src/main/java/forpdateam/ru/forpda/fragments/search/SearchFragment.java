@@ -35,20 +35,19 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
+import forpdateam.ru.forpda.App;
 import forpdateam.ru.forpda.R;
 import forpdateam.ru.forpda.TabManager;
 import forpdateam.ru.forpda.api.IBaseForumPost;
 import forpdateam.ru.forpda.api.favorites.Favorites;
 import forpdateam.ru.forpda.api.search.models.SearchResult;
 import forpdateam.ru.forpda.api.search.models.SearchSettings;
-import forpdateam.ru.forpda.api.topcis.models.TopicItem;
 import forpdateam.ru.forpda.fragments.IPostFunctions;
 import forpdateam.ru.forpda.fragments.TabFragment;
 import forpdateam.ru.forpda.fragments.favorites.FavoritesHelper;
 import forpdateam.ru.forpda.fragments.theme.ThemeDialogsHelper;
 import forpdateam.ru.forpda.fragments.theme.ThemeHelper;
 import forpdateam.ru.forpda.fragments.theme.editpost.EditPostFragment;
-import forpdateam.ru.forpda.fragments.topics.TopicsFragment;
 import forpdateam.ru.forpda.rxapi.RxApi;
 import forpdateam.ru.forpda.utils.AlertDialogMenu;
 import forpdateam.ru.forpda.utils.ExtendedWebView;
@@ -67,7 +66,7 @@ public class SearchFragment extends TabFragment implements IPostFunctions {
     private ViewGroup nickBlock, resourceBlock, resultBlock, sortBlock, sourceBlock;
     private Spinner resourceSpinner, resultSpinner, sortSpinner, sourceSpinner;
     private TextView nickField;
-    private Button submitButton;
+    private Button submitButton, saveSettingsButton;
 
     private List<String> resourceItems = Arrays.asList(SearchSettings.RESOURCE_FORUM.second, SearchSettings.RESOURCE_NEWS.second);
     private List<String> resultItems = Arrays.asList(SearchSettings.RESULT_TOPICS.second, SearchSettings.RESULT_POSTS.second);
@@ -85,7 +84,7 @@ public class SearchFragment extends TabFragment implements IPostFunctions {
 
     private StringBuilder titleBuilder = new StringBuilder();
     private PaginationHelper paginationHelper = new PaginationHelper();
-    private AlertDialogMenu<SearchFragment, IBaseForumPost> topicsDialogMenu;
+    private AlertDialogMenu<SearchFragment, IBaseForumPost> createdTopicsDialogMenu, tempTopicsDialogMenu;
 
     public SearchFragment() {
         configuration.setDefaultTitle("Поиск");
@@ -94,10 +93,12 @@ public class SearchFragment extends TabFragment implements IPostFunctions {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String savedSettings = App.getInstance().getPreferences().getString("search_settings", null);
+        Log.e("FORPDA_LOG", "savedSettings " + savedSettings);
+        if (savedSettings != null) {
+            settings = SearchSettings.parseSettings(settings, savedSettings);
+        }
         if (getArguments() != null) {
-           /* String url = getArguments().getString(ARG_TAB);
-            if (url != null)
-                settings = SearchSettings.parseSettings(settings, url);*/
             settings = SearchSettings.fromBundle(settings, getArguments());
         }
     }
@@ -130,6 +131,7 @@ public class SearchFragment extends TabFragment implements IPostFunctions {
         nickField = (TextView) findViewById(R.id.search_nick_field);
 
         submitButton = (Button) findViewById(R.id.search_submit);
+        saveSettingsButton = (Button) findViewById(R.id.search_save_settings);
 
         if (getMainActivity().getWebViews().size() > 0) {
             webView = getMainActivity().getWebViews().element();
@@ -212,27 +214,50 @@ public class SearchFragment extends TabFragment implements IPostFunctions {
         fillSettingsData();
         searchItem.expandActionView();
         submitButton.setOnClickListener(v -> startSearch());
+        saveSettingsButton.setOnClickListener(v -> saveSettings());
         //recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
         refreshLayout.setOnRefreshListener(this::loadData);
         adapter.setOnItemClickListener(item -> {
+            String url = "";
             if (settings.getResourceType().equals(SearchSettings.RESOURCE_NEWS.first)) {
-                IntentHandler.handle("http://4pda.ru/index.php?p=" + item.getId());
+                url = "http://4pda.ru/index.php?p=" + item.getId();
             } else {
-                String url = "http://4pda.ru/forum/index.php?showtopic=" + item.getTopicId();
+                url = "http://4pda.ru/forum/index.php?showtopic=" + item.getTopicId();
                 if (item.getId() != 0) {
                     url += "&view=findpost&p=" + item.getId();
                 }
-                IntentHandler.handle(url);
             }
+            IntentHandler.handle(url);
         });
         adapter.setOnLongItemClickListener(item -> {
-            if (topicsDialogMenu == null) {
-                topicsDialogMenu = new AlertDialogMenu<>();
-                topicsDialogMenu.addItem("Скопировать ссылку", (context, data1) -> Utils.copyToClipBoard("http://4pda.ru/forum/index.php?showtopic=".concat(Integer.toString(data1.getId()))));
-                topicsDialogMenu.addItem("Открыть форум темы", (context, data1) -> IntentHandler.handle("http://4pda.ru/forum/index.php?showforum=" + data1.getForumId()));
-                topicsDialogMenu.addItem("Добавить в избранное", ((context, data1) -> {
+            if (createdTopicsDialogMenu == null) {
+                createdTopicsDialogMenu = new AlertDialogMenu<>();
+                tempTopicsDialogMenu = new AlertDialogMenu<>();
+                createdTopicsDialogMenu.addItem("К первому", (context, data1) -> {
+                    IntentHandler.handle("http://4pda.ru/forum/index.php?showtopic=" + data1.getTopicId());
+                });
+                createdTopicsDialogMenu.addItem("К непрочитанному", (context, data1) -> {
+                    IntentHandler.handle("http://4pda.ru/forum/index.php?showtopic=" + data1.getTopicId() + "&view=getnewpost");
+                });
+                createdTopicsDialogMenu.addItem("К последнему", (context, data1) -> {
+                    IntentHandler.handle("http://4pda.ru/forum/index.php?showtopic=" + data1.getTopicId() + "&view=getlastpost");
+                });
+                createdTopicsDialogMenu.addItem("Скопировать ссылку", (context, data1) -> {
+                    String url = "";
+                    if (settings.getResourceType().equals(SearchSettings.RESOURCE_NEWS.first)) {
+                        url = "http://4pda.ru/index.php?p=" + item.getId();
+                    } else {
+                        url = "http://4pda.ru/forum/index.php?showtopic=" + item.getTopicId();
+                        if (item.getId() != 0) {
+                            url += "&view=findpost&p=" + item.getId();
+                        }
+                    }
+                    Utils.copyToClipBoard(url);
+                });
+                createdTopicsDialogMenu.addItem("Открыть форум темы", (context, data1) -> IntentHandler.handle("http://4pda.ru/forum/index.php?showforum=" + data1.getForumId()));
+                createdTopicsDialogMenu.addItem("Добавить в избранное", ((context, data1) -> {
                     new AlertDialog.Builder(context.getContext())
                             .setItems(Favorites.SUB_NAMES, (dialog1, which1) -> {
                                 FavoritesHelper.add(aBoolean -> {
@@ -242,9 +267,15 @@ public class SearchFragment extends TabFragment implements IPostFunctions {
                             .show();
                 }));
             }
+            tempTopicsDialogMenu.clear();
+            if(settings.getResourceType().equals(SearchSettings.RESOURCE_NEWS.first)){
+                tempTopicsDialogMenu.addItem(createdTopicsDialogMenu.get(3));
+            }else {
+                tempTopicsDialogMenu.addItems(createdTopicsDialogMenu.getItems());
+            }
 
             new AlertDialog.Builder(getContext())
-                    .setItems(topicsDialogMenu.getTitles(), (dialog, which) -> topicsDialogMenu.onClick(which, SearchFragment.this, item))
+                    .setItems(tempTopicsDialogMenu.getTitles(), (dialog, which) -> tempTopicsDialogMenu.onClick(which, SearchFragment.this, item))
                     .show();
         });
         return view;
@@ -367,6 +398,16 @@ public class SearchFragment extends TabFragment implements IPostFunctions {
         spinner.setAdapter(adapter);
         spinner.setSelection(selection);
         spinner.setOnItemSelectedListener(listener);
+    }
+
+    private void saveSettings() {
+        SearchSettings saveSettings = new SearchSettings();
+        saveSettings.setResult(settings.getResult());
+        saveSettings.setSort(settings.getSort());
+        saveSettings.setSource(settings.getSource());
+        String saveUrl = saveSettings.toUrl();
+        Log.e("FORPDA_LOG", "SAVE SETTINGS " + saveUrl);
+        App.getInstance().getPreferences().edit().putString("search_settings", saveUrl).apply();
     }
 
     private void startSearch() {

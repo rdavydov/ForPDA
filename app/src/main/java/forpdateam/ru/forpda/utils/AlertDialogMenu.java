@@ -1,6 +1,7 @@
 package forpdateam.ru.forpda.utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -23,6 +24,14 @@ public class AlertDialogMenu<T, E> {
 
     public void addItem(MenuItem item) {
         items.add(item);
+    }
+
+    public void addItems(Collection<MenuItem> items) {
+        this.items.addAll(items);
+    }
+
+    public List<MenuItem> getItems(){
+        return items;
     }
 
     public MenuItem get(int index) {

@@ -29,6 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,6 +39,7 @@ import forpdateam.ru.forpda.client.Client;
 //import forpdateam.ru.forpda.data.NewsRepository;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import okhttp3.Cookie;
 
 import static org.acra.ReportField.ANDROID_VERSION;
 import static org.acra.ReportField.APP_VERSION_CODE;
@@ -67,7 +69,7 @@ public class App extends android.app.Application {
     public final static String TEMPLATE_SEARCH = "search";
     public final static String TEMPLATE_QMS_CHAT = "qms_chat";
     public final static String TEMPLATE_QMS_CHAT_MESS = "qms_chat_mess";
-    private static App INSTANCE = new App();
+    private static App INSTANCE;
     private SharedPreferences preferences;
     private static int savedKeyboardHeight = 0;
     public static int keyboardHeight = 0;
@@ -100,18 +102,17 @@ public class App extends android.app.Application {
         App.getInstance().getPreferences().edit().putInt("keyboard_height", keyboardHeight).apply();
     }
 
+    public App() {
+
+    }
+
     public static App getInstance() {
         return INSTANCE;
     }
 
-    public App() {
-        INSTANCE = this;
-    }
-
-
     private Map<String, MiniTemplator> templates = new HashMap<>();
 
-    public MiniTemplator getTemplate(String name){
+    public MiniTemplator getTemplate(String name) {
         return templates.get(name);
     }
 
@@ -122,7 +123,7 @@ public class App extends android.app.Application {
             try {
                 template = new MiniTemplator.Builder().build(stream, Charset.forName("utf-8"));
             } catch (Exception e) {
-                Toast.makeText(getContext(), "Ошибка шаблона ["+name+"]: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Ошибка шаблона [" + name + "]: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 //создание пустого шаблона
                 template = new MiniTemplator.Builder().build(new ByteArrayInputStream("Template error!".getBytes(Charset.forName("utf-8"))), Charset.forName("utf-8"));
             }
@@ -131,6 +132,7 @@ public class App extends android.app.Application {
         }
         return template;
     }
+    private float density = 1.0f;
 
     private RefWatcher refWatcher;
 
@@ -140,12 +142,17 @@ public class App extends android.app.Application {
     }
 
     private RealmConfiguration newsConfiguration;
+    public float getDensity() {
+        return density;
+    }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        INSTANCE = this;
         ACRA.init(this);
         refWatcher = LeakCanary.install(this);
+        density =  getResources().getDisplayMetrics().density;
 
         templates.put(TEMPLATE_THEME, findTemplate(TEMPLATE_THEME));
         templates.put(TEMPLATE_SEARCH, findTemplate(TEMPLATE_SEARCH));
@@ -234,6 +241,18 @@ public class App extends android.app.Application {
                             imageUri = "http:".concat(imageUri);
                         Log.d("FORPDA_LOG", "UIL LOAD IMAGE: ".concat(imageUri));
                         return super.getStream(imageUri, extra);
+                    }
+
+                    @Override
+                    protected HttpURLConnection createConnection(String url, Object extra) throws IOException {
+                        HttpURLConnection conn = super.createConnection(url, extra);
+                        Map<String, Cookie> cookies = Client.getInstance().getCookies();
+                        String stringCookies = "";
+                        for (Map.Entry<String, Cookie> cookieEntry : cookies.entrySet()) {
+                            stringCookies = stringCookies.concat(cookieEntry.getKey()).concat("=").concat(cookieEntry.getValue().value()).concat(";");
+                        }
+                        conn.setRequestProperty("Cookie", stringCookies);
+                        return conn;
                     }
                 })
                 .threadPoolSize(5)

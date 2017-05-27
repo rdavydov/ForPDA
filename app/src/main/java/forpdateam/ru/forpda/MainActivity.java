@@ -1,9 +1,14 @@
 package forpdateam.ru.forpda;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -11,7 +16,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -52,6 +59,17 @@ public class MainActivity extends AppCompatActivity implements TabManager.TabLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        /*ArrayList<String> list = new ArrayList<>();
+        *//*list.add("http://s.4pda.to/JK4KRvTtz2Yq1n1wh31YbxmLjUahInU59Gayr9aSC0aFz0kXLr71nJ.png");
+        list.add("http://s.4pda.to/JK4KRvTtz2Yq1n1wh31YbxmLjUahInU59Gayr9aSC0aFz0kXLr71nJ.png");
+        list.add("http://s.4pda.to/JK4KRvTtz2Yq1n1wh31YbxmLjUahInU59Gayr9aSC0aFz0kXLr71nJ.png");
+        list.add("http://s.4pda.to/JK4KRvTtz2Yq1n1wh31YbxmLjUahInU59Gayr9aSC0aFz0kXLr71nJ.png");*//*
+        list.add("http://s.4pda.to/JK4K0VVRwYXYo98nKdRn8N57Z3v80jTahm1b6BH1HmLUkobBPXDlWz26S.gif");
+        list.add("http://sourcey.com/images/stock/salvador-dali-the-dream.jpg");
+        list.add("http://sourcey.com/images/stock/salvador-dali-persistence-of-memory.jpg");
+        list.add("http://sourcey.com/images/stock/simpsons-persistence-of-memory.jpg");
+        list.add("http://sourcey.com/images/stock/salvador-dali-the-great-masturbator.jpg");
+        ImageViewerActivity.startActivity(this, list, 2);*/
         setContentView(R.layout.activity_main);
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
@@ -249,6 +267,41 @@ public class MainActivity extends AppCompatActivity implements TabManager.TabLis
         webViewCleaner.purge();
         webViews.clear();
         Log.e("FORPDA_LOG", "ACTIVITY DESTROY");
+    }
+
+    private List<Runnable> storagePermissionCallbacks = new ArrayList<>();
+
+    public void checkStoragePermission(Runnable runnable) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                Log.v("FORPDA_LOG", "Permission is granted");
+            } else {
+                Log.v("FORPDA_LOG", "Permission is revoked");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, TabFragment.REQUEST_STORAGE);
+                storagePermissionCallbacks.add(runnable);
+                return;
+            }
+        } else {
+            Log.v("FORPDA_LOG", "Permission is granted");
+        }
+        runnable.run();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        for (int i = 0; i < permissions.length; i++) {
+            if (permissions[i].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE) && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                for (Runnable runnable : storagePermissionCallbacks) {
+                    try {
+                        runnable.run();
+                    } catch (Exception ignore) {
+                    }
+                }
+                break;
+            }
+        }
+        storagePermissionCallbacks.clear();
     }
 
     class WebViewCleanerTask extends TimerTask {

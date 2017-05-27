@@ -1,3 +1,5 @@
+console.log("LOAD JS SOURCE attach_transformer.js");
+
 function AttachmentTransformer() {
     function Attachment() {
         this.attachType = TYPE_FILE;
@@ -121,7 +123,7 @@ function AttachmentTransformer() {
         var targetNodes = [];
         for (var i = 0; i < nodes.length; i++) {
             var node = nodes[i];
-            if (node.querySelector(".block-title").textContent.includes("Прикрепленные")) {
+            if ((node.querySelector(".block-title").textContent.indexOf("Прикрепленные") != -1)) {
                 targetNodes.push(node);
             }
         }
@@ -152,7 +154,7 @@ function AttachmentTransformer() {
 
         for (var i = 0; i < nodes.length; i++) {
             var node = nodes[i];
-            if (node.textContent.includes("Прикрепленные")) {
+            if ((node.textContent.indexOf("Прикрепленные") != -1)) {
                 targetNodes.push(node.parentNode.parentNode);
             }
         }
@@ -178,7 +180,7 @@ function AttachmentTransformer() {
                     nodesForRemove.push(size);
                     nodesForRemove.push(count);
                     postAttachments.push(parseFile(elem, size, count));
-                } else if (temp.nodeName == "TABLE" && temp.getAttribute("id").includes("ipb-attach")) {
+                } else if (temp.nodeName == "TABLE" && (temp.getAttribute("id").indexOf("ipb-attach") != -1)) {
                     found = true;
                     isLastBr = false;
                     postAttachments.push(parseTable(temp));
@@ -204,8 +206,8 @@ function AttachmentTransformer() {
         for (var j = 0; j < nodesForRemove.length; j++) {
             try {
                 nodesForRemove[j].parentNode.removeChild(nodesForRemove[j]);
-            } catch (e) {
-                console.error("Handle error delete: " + e);
+            } catch (ignore) {
+                //console.error("Handle error delete: " + e);
             }
         }
     }
@@ -220,16 +222,12 @@ function AttachmentTransformer() {
     }
 }
 
-
-window.addEventListener("DOMContentLoaded", function (e) {
-    console.log("START");
-    var date = new Date().getTime();
+function startAttachTransformer() {
     var postContainers = document.querySelectorAll(".post_body");
     var transformer = new AttachmentTransformer();
     for (var i = 0; i < postContainers.length; i++) {
         var postContainer = postContainers[i];
         transformer.transform(postContainers[i])
     }
-    console.log("END");
-    console.log(new Date().getTime() - date);
-});
+}
+nativeEvents.addEventListener("DOMContentLoaded", startAttachTransformer);

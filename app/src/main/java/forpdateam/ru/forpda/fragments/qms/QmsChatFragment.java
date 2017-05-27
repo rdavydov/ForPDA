@@ -8,11 +8,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.support.v7.widget.AppCompatEditText;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,7 +22,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.webkit.WebViewFragment;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.Toast;
@@ -51,7 +47,6 @@ import forpdateam.ru.forpda.utils.ExtendedWebView;
 import forpdateam.ru.forpda.utils.FilePickHelper;
 import forpdateam.ru.forpda.utils.IntentHandler;
 import forpdateam.ru.forpda.utils.SimpleTextWatcher;
-import forpdateam.ru.forpda.utils.Utils;
 import forpdateam.ru.forpda.utils.rx.Subscriber;
 import forpdateam.ru.forpda.views.messagepanel.MessagePanel;
 import forpdateam.ru.forpda.views.messagepanel.attachments.AttachmentsPopup;
@@ -142,7 +137,7 @@ public class QmsChatFragment extends TabFragment {
         loadBaseWeb();
 
         attachmentsPopup = messagePanel.getAttachmentsPopup();
-        attachmentsPopup.setAddOnClickListener(v -> pickImage());
+        attachmentsPopup.setAddOnClickListener(v -> tryPickFile());
         attachmentsPopup.setDeleteOnClickListener(v -> {
             attachmentsPopup.preDeleteFiles();
             List<AttachmentItem> selectedFiles = attachmentsPopup.getSelected();
@@ -492,12 +487,10 @@ public class QmsChatFragment extends TabFragment {
         attachmentSubscriber.subscribe(RxApi.Qms().uploadFiles(files), items -> attachmentsPopup.onUploadFiles(items), new ArrayList<>(), null);
     }
 
-    private static final int PICK_IMAGE = 1228;
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK) {
+        if (requestCode == REQUEST_PICK_FILE && resultCode == Activity.RESULT_OK) {
             if (data == null) {
                 //Display an error
                 return;
@@ -506,9 +499,7 @@ public class QmsChatFragment extends TabFragment {
         }
     }
 
-    public void pickImage() {
-        startActivityForResult(FilePickHelper.pickImage(PICK_IMAGE), PICK_IMAGE);
+    public void tryPickFile() {
+        getMainActivity().checkStoragePermission(() -> startActivityForResult(FilePickHelper.pickImage(true), REQUEST_PICK_FILE));
     }
-
-
 }

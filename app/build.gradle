@@ -6,11 +6,11 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
 
-    def versionNumber = 14
+    def versionNumber = 18
 
     def versionMajor = 0
     def versionMinor = 2
-    def versionPatch = 1
+    def versionPatch = 5
 
     def versionBuild = -1
     def versionPropsFile = file('version.properties')
@@ -96,7 +96,7 @@ android {
 
 ext {
     supportLibVersion = '25.3.1'
-    okHttpVersion = '3.6.0'
+    okHttpVersion = '3.8.0'
     rxbindingVersion = '0.4.0'
     rxlifecycleVersion = '2.0.1'
     rxCoreVersion = '2.1.0'
@@ -142,4 +142,5 @@ dependencies {
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
     compile "com.squareup.okhttp3:logging-interceptor:${okHttpVersion}"
+    compile 'com.github.chrisbanes:PhotoView:2.0.0'
 }
