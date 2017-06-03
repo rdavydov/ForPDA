@@ -26,6 +26,8 @@ import forpdateam.ru.forpda.R;
 import forpdateam.ru.forpda.api.theme.Theme;
 import forpdateam.ru.forpda.api.theme.models.ThemePage;
 import forpdateam.ru.forpda.api.theme.models.ThemePost;
+import forpdateam.ru.forpda.fragments.jsinterfaces.IBase;
+import forpdateam.ru.forpda.fragments.jsinterfaces.IPostFunctions;
 import forpdateam.ru.forpda.imageviewer.ImageViewerActivity;
 import forpdateam.ru.forpda.utils.ExtendedWebView;
 import forpdateam.ru.forpda.utils.IntentHandler;
@@ -34,7 +36,7 @@ import forpdateam.ru.forpda.utils.IntentHandler;
  * Created by radiationx on 20.10.16.
  */
 
-public class ThemeFragmentWeb extends ThemeFragment {
+public class ThemeFragmentWeb extends ThemeFragment implements IPostFunctions, IBase {
     private final static String JS_INTERFACE = "ITheme";
     private ExtendedWebView webView;
     private WebViewClient webViewClient;
@@ -62,6 +64,7 @@ public class ThemeFragmentWeb extends ThemeFragment {
         refreshLayout.addView(webView);
         webView.addJavascriptInterface(this, JS_INTERFACE);
         webView.addJavascriptInterface(this, JS_POSTS_FUNCTIONS);
+        webView.addJavascriptInterface(this, JS_BASE_INTERFACE);
         webView.getSettings().setJavaScriptEnabled(true);
         registerForContextMenu(webView);
 
@@ -134,6 +137,16 @@ public class ThemeFragmentWeb extends ThemeFragment {
     }
 
     @Override
+    protected void updateShowAvatarState(boolean isShow) {
+        webView.evalJs("updateShowAvatarState(" + isShow + ")");
+    }
+
+    @Override
+    protected void updateTypeAvatarState(boolean isCircle) {
+        webView.evalJs("updateTypeAvatarState(" + isCircle + ")");
+    }
+
+    @Override
     protected void updateHistoryLastHtml() {
         Log.e("console", "updateHistoryLastHtml");
         webView.evalJs("ITheme.callbackUpdateHistoryHtml('<!DOCTYPE html><html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>')");
@@ -157,6 +170,7 @@ public class ThemeFragmentWeb extends ThemeFragment {
         webView.setActionModeListener(null);
         webView.removeJavascriptInterface(JS_INTERFACE);
         webView.removeJavascriptInterface(JS_POSTS_FUNCTIONS);
+        webView.removeJavascriptInterface(JS_BASE_INTERFACE);
         webView.setWebChromeClient(null);
         webView.setWebViewClient(null);
         webView.loadUrl("about:blank");
@@ -359,6 +373,12 @@ public class ThemeFragmentWeb extends ThemeFragment {
     * JavaScript Interface functions
     *
     * */
+
+    @JavascriptInterface
+    public void playClickEffect() {
+        run(this::tryPlayClickEffect);
+    }
+
     @JavascriptInterface
     @Override
     public void firstPage() {

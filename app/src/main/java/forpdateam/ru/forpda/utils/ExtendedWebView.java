@@ -9,6 +9,7 @@ import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.ViewParent;
 import android.webkit.ValueCallback;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 /**
@@ -18,14 +19,24 @@ import android.webkit.WebView;
 public class ExtendedWebView extends NestedWebView {
     public ExtendedWebView(Context context) {
         super(context);
+        init();
     }
 
     public ExtendedWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public ExtendedWebView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init();
+    }
+
+    public void init() {
+        getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NORMAL);
+        getSettings().setBuiltInZoomControls(false);
+        getSettings().setDefaultFontSize(16);
+        getSettings().setTextZoom(100);
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
