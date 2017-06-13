@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import org.acra.ACRA;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -25,7 +26,7 @@ import forpdateam.ru.forpda.fragments.favorites.FavoritesFragment;
 import forpdateam.ru.forpda.fragments.forum.ForumFragment;
 import forpdateam.ru.forpda.fragments.mentions.MentionsFragment;
 import forpdateam.ru.forpda.fragments.profile.ProfileFragment;
-import forpdateam.ru.forpda.fragments.qms.QmsChatFragment;
+import forpdateam.ru.forpda.fragments.qms.chat.QmsChatFragment;
 import forpdateam.ru.forpda.fragments.qms.QmsContactsFragment;
 import forpdateam.ru.forpda.fragments.qms.QmsThemesFragment;
 import forpdateam.ru.forpda.fragments.reputation.ReputationFragment;
@@ -283,8 +284,13 @@ public class IntentHandler {
         //Toast.makeText(App.getContext(), "ForPDA should run " + s, Toast.LENGTH_SHORT).show();
     }
 
-    private static void systemDownload(String url) {
+    public static void systemDownload(String url) {
         String fileName = url;
+        try {
+            fileName = URLDecoder.decode(url, "CP1251");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         int cut = fileName.lastIndexOf('/');
         if (cut != -1) {
             fileName = fileName.substring(cut + 1);
@@ -293,7 +299,7 @@ public class IntentHandler {
         systemDownload(fileName, url);
     }
 
-    private static void systemDownload(String fileName, String url) {
+    public static void systemDownload(String fileName, String url) {
         Runnable runnable = () -> {
             DownloadManager dm = (DownloadManager) App.getContext().getSystemService(Context.DOWNLOAD_SERVICE);
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));

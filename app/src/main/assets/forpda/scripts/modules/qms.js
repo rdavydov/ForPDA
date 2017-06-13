@@ -20,7 +20,6 @@ window.addEventListener("scroll", function (e) {
     var date = new Date();
     if (window.pageYOffset == 0 /*|| window.pageYOffset <= 48*/ && (date.getTime() - lastMessRequestTS >= 500)) {
         lastMessRequestTS = date.getTime();
-        //addTopPost();
         IChat.showMoreMess();
     }
 });
@@ -32,7 +31,8 @@ function getLastMess() {
 
 function showMoreMess(listSrc) {
     var lastHeight = listElem.offsetHeight;
-    listElem.insertAdjacentHTML("afterbegin", listSrc);
+    var suka = listElem.insertAdjacentHTML("afterbegin", listSrc);
+    console.error(suka);
     window.scrollBy(0, listElem.offsetHeight - lastHeight);
     addedNewMessages();
 }
@@ -53,18 +53,5 @@ function addedNewMessages(){
     blocksOpenClose();
     removeImgesSrc();
     addIcons();
-}
-
-function addTopPost() {
-    var listSrc = "";
-    for (var i = 0; i < 30; i++) {
-        listSrc += '<div class="mess_container our"><div class="mess"><div class="content">cheburekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk</div></div><div class="date"><span>04:20</span></div></div>';
-    }
-    listSrc += "<hr><hr>";
-    showMoreMess(listSrc);
-}
-
-function addPost() {
-    var listSrc = '<div class="mess_container our"><div class="mess"><div class="content">cheburekkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk</div></div><div class="date"><span>04:20</span></div></div>';
-    showNewMess(listSrc, true);
+    jsEmoticons.parseAll();
 }
