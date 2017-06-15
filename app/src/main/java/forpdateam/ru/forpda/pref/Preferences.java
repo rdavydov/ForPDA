@@ -8,6 +8,16 @@ import forpdateam.ru.forpda.App;
 
 public class Preferences {
 
+    public static class Theme {
+        public static void enableNightTime(boolean state) {
+            App.getInstance().getPreferences().edit().putBoolean("night.theme", state).apply();
+        }
+
+        public static boolean getNightTheme() {
+            return App.getInstance().getPreferences().getBoolean("night.theme", false);
+        }
+    }
+
     public static class News {
         public static void enableCompatItem(boolean enable) {
             App.getInstance().getPreferences().edit().putBoolean("news.list.compat", enable).apply();
@@ -31,6 +41,14 @@ public class Preferences {
 
         public static long getListTimeUpdateTop(String category) {
             return App.getInstance().getPreferences().getLong("news.top.list." + category, 0L);
+        }
+
+        public static void enableComments(boolean state) {
+            App.getInstance().getPreferences().edit().putBoolean("news.comments", state).apply();
+        }
+
+        public static boolean showNewsComments() {
+            return App.getInstance().getPreferences().getBoolean("news.comments", true);
         }
     }
 }

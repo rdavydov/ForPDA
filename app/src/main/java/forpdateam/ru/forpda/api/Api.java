@@ -52,8 +52,10 @@ public class Api {
         return authApi;
     }
 
-    public static NewsParser NewsList() {
-        if (newsListApi == null) newsListApi = new NewsParser();
+    public static NewsParser NewsApi() {
+        if (newsListApi == null) {
+            newsListApi = new NewsParser();
+        }
         return newsListApi;
     }
 

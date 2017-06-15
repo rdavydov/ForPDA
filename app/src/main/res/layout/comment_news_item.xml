@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/comment_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:layout_editor_absoluteY="81dp"
+    tools:layout_editor_absoluteX="0dp">
+
+
+    <TextView
+        android:id="@+id/comment_username"
+        android:layout_width="wrap_content"
+        android:layout_height="17dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        tools:text="Валера"
+        tools:layout_editor_absoluteY="8dp"
+        tools:layout_editor_absoluteX="16dp"/>
+
+    <TextView
+        android:id="@+id/comment_text"
+        android:layout_width="332dp"
+        android:layout_height="55dp"
+        android:textSize="16sp"
+        android:lines="3"
+        tools:layout_editor_absoluteY="39dp"
+        tools:text="This is comment This is comment This is comment This is comment This is comment This is comment"
+        tools:layout_editor_absoluteX="14dp"/>
+
+    <Button
+        android:id="@+id/comment_replay_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:layout_editor_absoluteY="117dp"
+        android:layout_marginEnd="8dp"
+        tools:text="Ответ"
+        tools:layout_editor_absoluteX="264dp"/>
+
+    <ImageButton
+        android:id="@+id/comment_like_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_sentiment_satisfied_black_24dp"
+        tools:layout_editor_absoluteY="117dp"
+        tools:layout_editor_absoluteX="209dp"/>
+
+    <TextView
+        android:id="@+id/comment_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        tools:layout_editor_absoluteX="294dp"
+        tools:text="21.08.2215"
+        tools:layout_editor_absoluteY="8dp"/>
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="1dp"
+        android:background="@color/text_second_color"
+        tools:layout_editor_absoluteY="30dp"
+        tools:layout_editor_absoluteX="1dp"/>
+
+    <TextView
+        android:id="@+id/comment_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        tools:layout_editor_absoluteX="257dp"
+        tools:layout_editor_absoluteY="8dp"
+        tools:text="06:25"/>
+</android.support.constraint.ConstraintLayout>

@@ -43,7 +43,6 @@ import java.util.Observer;
 import biz.source_code.miniTemplator.MiniTemplator;
 import forpdateam.ru.forpda.client.Client;
 import forpdateam.ru.forpda.client.ClientHelper;
-import forpdateam.ru.forpda.data.Repository;
 import forpdateam.ru.forpda.utils.SimpleObservable;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -104,8 +103,7 @@ public class App extends android.app.Application {
     }
 
     private RealmConfiguration newsConfiguration;
-    public float getDensity() {
-        return density;
+
     public static App getInstance() {
         return INSTANCE;
     }
@@ -121,7 +119,6 @@ public class App extends android.app.Application {
         ACRA.init(this);
         refWatcher = LeakCanary.install(this);
         density =  getResources().getDisplayMetrics().density;
-        density = getResources().getDisplayMetrics().density;
 
         templates.put(TEMPLATE_THEME, findTemplate(TEMPLATE_THEME));
         templates.put(TEMPLATE_SEARCH, findTemplate(TEMPLATE_SEARCH));
@@ -236,7 +233,6 @@ public class App extends android.app.Application {
     public float getDensity() {
         return density;
     }
-
 
     public RealmConfiguration getNewsRealmConfig() {
         return newsConfiguration;

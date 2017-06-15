@@ -1,10 +1,7 @@
 package forpdateam.ru.forpda.models.news;
 
-import org.jsoup.nodes.Element;
-
-import javax.annotation.PropertyKey;
-
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by isanechek on 5/10/17.
@@ -12,8 +9,8 @@ import io.realm.RealmObject;
 
 public class NCModel extends RealmObject {
 
-    @PropertyKey
-    public int postId;
+    @PrimaryKey
+    public String postId;
     public String username;
     public String userProfUrl;
     public String text;

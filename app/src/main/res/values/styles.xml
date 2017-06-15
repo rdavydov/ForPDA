@@ -113,4 +113,39 @@
         <item name="elevation">0dp</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
+
+    <!--For TestParser-->
+    <style name="display_1">
+        <item name="android:textSize">34sp</item>
+        <item name="android:lineSpacingExtra">6sp</item>
+    </style>
+
+    <style name="headline">
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="title">
+        <item name="android:textSize">20sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="subhead">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="body">
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineSpacingMultiplier">1.5</item>
+    </style>
+
+    <style name="body_2">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:lineSpacingExtra">10sp</item>
+    </style>
+
+    <style name="caption">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">#757575</item>
+    </style>
 </resources>

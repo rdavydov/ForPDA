@@ -3,7 +3,6 @@ package forpdateam.ru.forpda.fragments.news.list.presenter;
 import android.support.annotation.NonNull;
 
 import com.annimon.stream.Stream;
-import com.annimon.stream.function.Predicate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +19,6 @@ import forpdateam.ru.forpda.pref.Preferences;
 import forpdateam.ru.forpda.realm.RealmMapping;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 
@@ -70,7 +68,7 @@ public class NewsPresenter implements INewsPresenter {
         } else {
             log("load data from network");
             view.showUpdateProgress(true);
-            disposable.add(Api.NewsList().getNewsListFromNetwork1(category, 0)
+            disposable.add(Api.NewsApi().getNewsListFromNetwork1(category, 0)
                     .subscribeOn(Schedulers.io())
                     .map(RealmMapping::getMappingUpdateNewsList)
                     .observeOn(AndroidSchedulers.mainThread())
@@ -97,7 +95,7 @@ public class NewsPresenter implements INewsPresenter {
         if (timeLastNetworkRequest(category) > MINIMUM_WAIT_NETWORK_REQUEST) {
             if (background) { view.showBackgroundWorkProgress(true); }
             else { view.showUpdateProgress(true); }
-            disposable.add(Api.NewsList().getNewsListFromNetwork1(category, 0)
+            disposable.add(Api.NewsApi().getNewsListFromNetwork1(category, 0)
                     .subscribeOn(Schedulers.io())
                     .map(RealmMapping::getMappingUpdateNewsList)
                     .observeOn(AndroidSchedulers.mainThread())
@@ -144,7 +142,7 @@ public class NewsPresenter implements INewsPresenter {
      */
     @Override
     public void loadMore(@NonNull String category, int pageNumber) {
-        disposable.add(Api.NewsList().getNewsListFromNetwork1(category, pageNumber)
+        disposable.add(Api.NewsApi().getNewsListFromNetwork1(category, pageNumber)
                 .subscribeOn(Schedulers.io())
                 .map(RealmMapping::getMappingNewsList)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -156,7 +154,7 @@ public class NewsPresenter implements INewsPresenter {
 
         view.updateLoadMore(null);
         List<NewsModel> cache = new ArrayList<>();
-        disposable.add(Api.NewsList().getNewsListFromNetwork1(category, pageNumber)
+        disposable.add(Api.NewsApi().getNewsListFromNetwork1(category, pageNumber)
                 .subscribeOn(Schedulers.io())
                 .map(RealmMapping::getMappingUpdateNewsList)
                 .observeOn(AndroidSchedulers.mainThread())

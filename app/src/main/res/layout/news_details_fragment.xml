@@ -94,14 +94,14 @@
                 </LinearLayout>
             </forpdateam.ru.forpda.views.FixCardView>
 
-            <forpdateam.ru.forpda.views.FixCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <WebView
-                    android:id="@+id/nd_content_webview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-            </forpdateam.ru.forpda.views.FixCardView>
+            <!--<forpdateam.ru.forpda.views.FixCardView-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content">-->
+                <!--<WebView-->
+                    <!--android:id="@+id/nd_content_webview"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"/>-->
+            <!--</forpdateam.ru.forpda.views.FixCardView>-->
             <forpdateam.ru.forpda.views.FixCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

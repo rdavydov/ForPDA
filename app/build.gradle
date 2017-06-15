@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'realm-android'
 
@@ -92,6 +93,9 @@ android {
     lintOptions {
         disable 'RestrictedApi'
     }
+    dexOptions {
+        jumboMode true
+    }
 }
 
 ext {
@@ -105,45 +109,60 @@ ext {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
+    // support libs
     compile "com.android.support:palette-v7:${supportLibVersion}"
+    compile "com.android.support:support-fragment:${supportLibVersion}"
     compile "com.android.support:appcompat-v7:${supportLibVersion}"
     compile "com.android.support:design:${supportLibVersion}"
     compile "com.android.support:cardview-v7:${supportLibVersion}"
     compile "com.android.support:recyclerview-v7:${supportLibVersion}"
     compile "com.android.support:preference-v7:${supportLibVersion}"
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    // kotlin
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    // network
     compile "com.squareup.okhttp3:okhttp:${okHttpVersion}"
     compile "com.squareup.okhttp3:okhttp-urlconnection:${okHttpVersion}"
-    compile 'com.annimon:stream:1.1.4'
-    compile "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}"
-    compile "io.reactivex.rxjava2:rxjava:${rxCoreVersion}"
-    compile 'com.jakewharton.rxrelay2:rxrelay:2.0.0'
-    compile "com.trello.rxlifecycle2:rxlifecycle:${rxlifecycleVersion}"
-    compile "com.trello.rxlifecycle2:rxlifecycle-components:${rxlifecycleVersion}"
-    compile "com.trello.rxlifecycle2:rxlifecycle-android:${rxlifecycleVersion}"
+    compile "com.squareup.okhttp3:logging-interceptor:${okHttpVersion}"
+    // core
+    compile 'com.annimon:stream:1.1.7'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     compile 'org.jsoup:jsoup:1.10.2'
-    compile 'com.github.fcannizzaro:jsoup-annotations:1.0.0'
+    compile 'com.nineoldandroids:library:2.4.0'
+    compile 'ch.acra:acra:4.9.0'
+    // rxjava
+    compile "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}"
+    compile "io.reactivex.rxjava2:rxjava:${rxCoreVersion}"
+    // ui
     compile 'com.github.rahatarmanahmed:circularprogressview:2.5.0'
     compile 'de.hdodenhof:circleimageview:2.1.0'
-    compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.github.linger1216:labelview:v1.1.2'
-    compile 'me.gujun.android.taggroup:library:1.4@aar'
     compile 'org.ccil.cowan.tagsoup:tagsoup:1.2'
     compile 'org.bsc.util:minitemplator-repackaged:1.2'
     compile 'com.lapism:searchview:4.0'
     compile 'com.github.bmelnychuk:atv:1.2.9'
     compile 'com.afollestad:sectioned-recyclerview:0.2.3'
-    compile 'ch.acra:acra:4.9.0'
-    // For Debug
-    debugCompile 'com.readystatesoftware.chuck:library:1.0.4'
-    releaseCompile 'com.readystatesoftware.chuck:library-no-op:1.0.4'
-    compile 'com.orhanobut:logger:1.15'
-    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.1'
-    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
-    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
-    compile "com.squareup.okhttp3:logging-interceptor:${okHttpVersion}"
     compile 'com.github.chrisbanes:PhotoView:2.0.0'
     compile 'com.wada811:android-material-design-colors:3.0.0'
     compile 'com.thebluealliance:spectrum:0.7.1'
     compile 'com.github.douglasjunior:android-simple-tooltip:0.2.0'
+
+    // debug
+    debugCompile 'com.readystatesoftware.chuck:library:1.0.4'
+    releaseCompile 'com.readystatesoftware.chuck:library-no-op:1.0.4'
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.1'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
+    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
+
+}
+
+kotlin {
+    experimental {
+        coroutines 'enable'
+    }
+}
+
+repositories {
+    jcenter()
+    maven { url  "http://dl.bintray.com/kotlin/kotlin-dev" }
 }

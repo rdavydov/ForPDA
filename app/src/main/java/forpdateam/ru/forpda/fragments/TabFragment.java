@@ -12,6 +12,7 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -29,7 +30,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.leakcanary.RefWatcher;
-import com.trello.rxlifecycle2.components.support.RxFragment;
 
 import java.util.Observer;
 
@@ -47,7 +47,7 @@ import io.reactivex.schedulers.Schedulers;
 /**
  * Created by radiationx on 07.08.16.
  */
-public class TabFragment extends RxFragment {
+public class TabFragment extends Fragment {
     public final static String ARG_TITLE = "TAB_TITLE";
     public final static String TAB_SUBTITLE = "TAB_SUBTITLE";
     public final static String ARG_TAB = "TAB_URL";
