@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import forpdateam.ru.forpda.R
 import forpdateam.ru.forpda.extensions.loadImageFromNetwork
@@ -55,7 +56,7 @@ class NewsDetailsFragment : TabFragment(), INewsDetailsView {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         hideToolbar()
-        baseInflateFragment(inflater, R.layout.test_news_activity)
+        baseInflateFragment(inflater, R.layout.news_details_fragment)
         return view
     }
 
@@ -76,15 +77,7 @@ class NewsDetailsFragment : TabFragment(), INewsDetailsView {
         Logger.log("url s http:$imgUrlExt")
         presenter?.loadPage("http:$urlExt")
         image.loadImageFromNetwork("http:$imgUrlExt")
-
-        val infoContainer = FixCardView(context)
-        infoContainer.lparams(width = ViewGroup.LayoutParams.MATCH_PARENT)
-        val title = TextView(context)
-        title.lparams()
-        title.text = "Title block"
-        title.textSize = 16f
-        infoContainer.addView(title)
-        adapter?.addHeader(infoContainer)
+        adapter?.addHeader(initHeader(titleExt!!, "21.08.2117", "Vasy Test", null))
 
     }
 
@@ -95,11 +88,6 @@ class NewsDetailsFragment : TabFragment(), INewsDetailsView {
     override fun showWebViewContent(html: String?) {
         val container = FixCardView(context)
         container.lparams(width = ViewGroup.LayoutParams.MATCH_PARENT)
-//        val webText = TextView(context)
-//        webText.lparams(width = ViewGroup.LayoutParams.MATCH_PARENT)
-//        webText.text = html
-//        container.addView(webText)
-
         val webView = ExtendedWebView(context)
         webView.lparams(width = ViewGroup.LayoutParams.MATCH_PARENT)
         webView.loadDataWithBaseURL("http://4pda.ru/", html, "text/html", "utf-8", null)
@@ -134,6 +122,18 @@ class NewsDetailsFragment : TabFragment(), INewsDetailsView {
 
     override fun showError() {
         Logger.log("Show Error View")
+    }
+
+    private fun initHeader(title: String, date: String, author: String, tags: ArrayList<String>?) : View {
+        val root = activity.layoutInflater.inflate(R.layout.news_details_top_header, rootList, false)
+        val titleTv = root.findViewById(R.id.details_top_header_title) as TextView
+        titleTv.text = title
+        val dateTv = root.findViewById(R.id.details_top_header_date) as TextView
+        dateTv.text = date
+        val authorTv = root.findViewById(R.id.details_top_header_author) as TextView
+        authorTv.text = author
+        // позже надо положить скролл
+        return root
     }
 
     companion object {

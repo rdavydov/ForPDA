@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="wrap_content" >
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:id="@+id/details_top_header_title"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="16dp"
+        tools:text="Vasya the best fucking man, epti. Vasya the best fucking man, epti. Vasya the best fucking man, epti. Vasya the best fucking man, epti. Vasya the best fucking man, epti. Vasya the best fucking man, epti. Vasya the best fucking man, epti. "
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintRight_toLeftOf="@+id/details_top_header_date"
+        android:layout_marginRight="16dp"
+        android:lines="5"
+        android:textStyle="bold"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintLeft_creator="1"/>
+    <TextView
+        android:id="@+id/details_top_header_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+        android:textSize="12sp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="02.08.2111"
+        android:layout_marginEnd="16dp"/>
+
+    <TextView
+        android:id="@+id/details_top_header_author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        app:layout_goneMarginBottom="0dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        tools:text="Vasya Pupovich"
+        android:textSize="14sp"
+        tools:layout_constraintTop_creator="1"
+        android:layout_marginStart="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/details_top_header_title"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:layout_constraintBottom_creator="1"
+        app:layout_constraintVertical_bias="0.19"/>
+
+    <HorizontalScrollView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/details_top_header_author"
+        tools:layout_constraintBottom_creator="1"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/details_top_header_tags_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/dp16"
+            android:orientation="horizontal"/>
+    </HorizontalScrollView>
+
+</android.support.constraint.ConstraintLayout>
